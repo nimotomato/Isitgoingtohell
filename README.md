@@ -1,0 +1,2 @@
+# Isitgoingtohell
+News sentiment analysis.
