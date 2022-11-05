@@ -18,7 +18,17 @@ class NewsCrawlSpider(CrawlSpider):
     )
 
     def parse_item(self, response):
-        yield{
-            'Link': response.url,
-            'Text': " ".join(response.css('p::text').getall())
-        }
+        #We could use this which gets every paragraph;
+        # 'Text': " ".join(response.css('p::text').getall())
+
+        #This css-selector gets text from most headers.
+
+        #TO DO: 
+        # Add timestamp, probably easiest to use CSS-selector time class
+        headlines = response.css('a h3::text')
+        for headline in headlines:
+            if headline:
+                yield{               
+                    'Link': response.url,           
+                    'Text': headline.get()
+                }
