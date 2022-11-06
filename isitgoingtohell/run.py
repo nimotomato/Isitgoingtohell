@@ -7,11 +7,11 @@ import pprint
 
 def main():
 
-    # load config
-    #config = load_toml("config.toml")
+    # # load config
+    # config = load_toml("config.toml")
 
-    # set up sentiment analysis model
-    #sentiment_analyser = pipeline(model=config["sentiment_analysis"]["model"])
+    # # set up sentiment analysis model
+    # sentiment_analyser = pipeline(model=config["sentiment_analysis"]["model"])
 
     run_spider()
 
@@ -26,16 +26,16 @@ def main():
     # ]
 
     
-  #  news = [d["Text"] for d in load_json("items.json") if d["Text"].count(" ") < 400]
+#     news = [d["Text"] for d in load_json("items.json")]
 
-    # get sentiment
-   # scores = sentiment_analyser(news)
-   #pprint.pprint(list(zip(news, scores)))
+# # get sentiment
+#     scores = sentiment_analyser(news)
+#     pprint.pprint(list(zip(news, scores)))
 
 def run_spider():
     process = CrawlerProcess(settings={
     "FEEDS": {
-        "items.json": {"format": "json"},
+        "items2.json": {"format": "json"},
     },
     })
     process.crawl(NewsCrawlSpider)

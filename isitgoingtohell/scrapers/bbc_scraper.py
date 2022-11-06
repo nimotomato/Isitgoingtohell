@@ -10,7 +10,7 @@ class NewsCrawlSpider(CrawlSpider):
     
 
 
-    le_page_details = LinkExtractor(allow=r'news/')
+    le_page_details = LinkExtractor(allow=r'world/')
     rule_page_details = Rule(le_page_details, callback='parse_item', follow=False)
     rules = (
         rule_page_details
@@ -25,10 +25,20 @@ class NewsCrawlSpider(CrawlSpider):
 
         #TO DO: 
         # Add timestamp, probably easiest to use CSS-selector time class
-        headlines = response.css('a h3::text')
-        for headline in headlines:
-            if headline:
-                yield{               
-                    'Link': response.url,           
-                    'Text': headline.get()
+        # headlines = response.css('a h3::text')
+        
+        # for headline in headlines:
+        #     if headline:
+        #         yield{               
+        #             'link': response.url,           
+        #             'text': headline.get()
+        #         }
+
+        divs = response.css('div')
+        for div in divs:
+            if div.css('a h3::text'):
+                yield{
+                    'link': response.url,
+                    'text': div.css('a h3::text').get(),
+                    'time': div.css('time::attr(datetime)').get()
                 }
