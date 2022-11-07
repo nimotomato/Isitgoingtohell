@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-
+from isitgoingtohell.bbc_scraper.items import BbcScraperItem
 
 class BbcSpider(CrawlSpider):
     name = 'news_crawl'
@@ -28,3 +28,16 @@ class BbcSpider(CrawlSpider):
                     'text': div.css('a h3::text').get(),
                     'time': div.css('time::attr(datetime)').get()
                 }
+
+    #for connecting with postgreSQL. Dont forget to enable fields in items.py, the pipelines.py AS WELL AS activate ITEM_PIPELEINES in settings.py
+        #     #Find all divs
+        # divs = response.css('div')
+        # for div in divs:
+        #     #Find most headlines and timestamps within div.
+        #    scraper_item = BbcScraperItem()
+        #    if div.css('a h3::text'):
+        #        yield{
+        #            scraper_item['link']: response.url,
+        #            scraper_item['text']: div.css('a h3::text').get(),
+        #            scraper_item['time']: div.css('time::attr(datetime)').get()
+        #        }
