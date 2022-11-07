@@ -1,6 +1,6 @@
 # from isitgoingtohell.sentiment_analysis.sentiment_analyser import SentimentAnalyser
 from transformers import pipeline
-from isitgoingtohell.scrapers.bbc_scraper import NewsCrawlSpider
+from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.utils import load_toml, load_json
 from scrapy.crawler import CrawlerProcess
 import pprint
@@ -26,7 +26,7 @@ def main():
     # ]
 
     
-#     news = [d["Text"] for d in load_json("items.json")]
+#     news = [d["text"] for d in load_json("items.json")]
 
 # # get sentiment
 #     scores = sentiment_analyser(news)
@@ -38,7 +38,7 @@ def run_spider():
         "items2.json": {"format": "json"},
     },
     })
-    process.crawl(NewsCrawlSpider)
+    process.crawl(BbcSpider)
     process.start()
 
 if __name__ == "__main__":
