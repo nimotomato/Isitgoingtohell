@@ -33,11 +33,7 @@ def main():
 #     pprint.pprint(list(zip(news, scores)))
 
 def run_spider():
-    process = CrawlerProcess(settings={
-    "FEEDS": {
-        "items2.json": {"format": "json"},
-    },
-    })
+    process = CrawlerProcess()
     process.crawl(BbcSpider)
     process.start()
 

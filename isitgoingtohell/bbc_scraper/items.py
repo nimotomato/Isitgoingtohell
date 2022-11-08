@@ -7,8 +7,6 @@ import scrapy
 
 
 class BbcScraperItem(scrapy.Item):
-    # # enable this:
-    # link = scrapy.Field()
-    # text = scrapy.Field()
-    # time = scrapy.Field()
-    pass
+    link = scrapy.Field()
+    text = scrapy.Field()
+    time = scrapy.Field()

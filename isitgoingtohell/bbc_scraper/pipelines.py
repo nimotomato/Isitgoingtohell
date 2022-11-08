@@ -11,46 +11,47 @@ import psycopg2
 
 class BbcScraperPipeline:
     def __init__(self):
-        #hostname = 
-        #username = 
-        #password =
-        #database = 
+        hostname = 'dpg-cdjur3un6mpngruf3uag-a.oregon-postgres.render.com'
+        username = 'news_db_itmr_user'
+        password = 'YBIuNld32NRcYvCNQM1Md7MiYXRZ4Uem'
+        database = 'news_db_itmr'
 
         #create connection
-        # self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
+        self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
 
-        ## Create cursor, used to execute commands
-        #self.cur = self.connection.cursor()
-
-        pass
+        # Create cursor, used to execute commands
+        self.cur = self.connection.cursor()
     
     def process_item(self, item, spider):
-        ## Check to see if text is already in database 
-        # self.cur.execute("select * from quotes where content = %s", (item['text'],))
+        # # Check to see if text is already in database 
+        # self.cur.execute("""select * from news where content = %s""", (item['text']))
         # result = self.cur.fetchone()
 
         # ## If it is in DB, create log message
         # if result:
-        #     spider.logger.warn("Item already in database: %s" % item['text'])
+        #     spider.logger.warn("Item already in database: %s", item['text'])
 
-
-        # ## If text isn't in the DB, insert data
+        ## If text isn't in the DB, insert data
         # else:
 
-            # ## Define insert statement
-            # self.cur.execute(""" insert into DB_NAME (COL, COL, COL) values (%s,%s,%s)""", (
-            #     item['link'],
-            #     item['text'],
-            #     item['time']
-            # ))
+        try:
+            # Define insert statement
+            self.cur.execute(""" insert into news (link, text, datetime) values (%s,%s,%s)""", (
+                item['link'],
+                item['text'],
+                item['time']
+            ))
+            print("cuckshoulder")
+        except:
+            self.connection.rollback()
 
-            # ## Execute insert of data into database
-            # self.connection.commit()
-        # return item
-        pass
+        ## Execute insert of data into database
+        self.connection.commit()
+        return item
+    
 
-    # def close_spider(self, spider):
+    def close_spider(self, spider):
 
-    #     ## Close cursor & connection to database 
-    #     self.cur.close()
-    #     self.connection.close()
+        ## Close cursor & connection to database 
+        self.cur.close()
+        self.connection.close()
