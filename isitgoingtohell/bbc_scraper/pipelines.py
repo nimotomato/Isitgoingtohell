@@ -23,17 +23,6 @@ class BbcScraperPipeline:
         self.cur = self.connection.cursor()
     
     def process_item(self, item, spider):
-        # # Check to see if text is already in database 
-        # self.cur.execute("""select * from news where content = %s""", (item['text']))
-        # result = self.cur.fetchone()
-
-        # ## If it is in DB, create log message
-        # if result:
-        #     spider.logger.warn("Item already in database: %s", item['text'])
-
-        ## If text isn't in the DB, insert data
-        # else:
-
         try:
             # Define insert statement
             self.cur.execute(""" insert into news (link, text, datetime) values (%s,%s,%s)""", (

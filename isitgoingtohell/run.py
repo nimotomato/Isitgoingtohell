@@ -12,19 +12,7 @@ def main():
 
     # # set up sentiment analysis model
     # sentiment_analyser = pipeline(model=config["sentiment_analysis"]["model"])
-
     run_spider()
-
-    # some random news
-    # news = [
-    #     """TikTok influencer cleans people's homes for free
-    # TikTok influencer cleans people's homes for free
-
-    # Auri Katariina, a cleaner from Finland, began posting videos on social media which became an instant hit. People started reaching out to her for help and she now cleans homes around the world for free.
-
-    # Auri's videos get millions of views and the BBC went to meet her on a recent trip to the United Kingdom."""
-    # ]
-
     
 #     news = [d["text"] for d in load_json("items.json")]
 
@@ -33,7 +21,10 @@ def main():
 #     pprint.pprint(list(zip(news, scores)))
 
 def run_spider():
-    process = CrawlerProcess()
+    process = CrawlerProcess(settings={
+        'ITEM_PIPELINES': {
+   'isitgoingtohell.bbc_scraper.pipelines.BbcScraperPipeline': 300}
+    })
     process.crawl(BbcSpider)
     process.start()
 
