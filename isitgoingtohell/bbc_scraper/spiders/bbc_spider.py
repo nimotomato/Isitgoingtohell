@@ -3,6 +3,8 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from isitgoingtohell.bbc_scraper.items import BbcScraperItem
 from datetime import date
+import re
+
 class BbcSpider(CrawlSpider):
     name = 'news_crawl'
     allowed_domains = ['www.bbc.com']
@@ -27,5 +29,8 @@ class BbcSpider(CrawlSpider):
                 scraper_item['text'] = div.css('a h3::text').get()
                 scraper_item['time'] = div.css('time::attr(datetime)').get()
                 if scraper_item['time'] == None:
-                    scraper_item['time'] = date.today().strftime('%Y-%m-%d')
+                    scraper_item['time'] = date.today().isoformat()
+                region = re.search(r"/world/([a-z]+_?[a-z]+?[a-z]+_?[a-z]+)", response.url)
+                scraper_item['region'] = region.group(1)
+
                 yield scraper_item

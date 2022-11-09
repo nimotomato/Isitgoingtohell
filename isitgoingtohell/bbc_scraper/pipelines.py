@@ -25,12 +25,12 @@ class BbcScraperPipeline:
     def process_item(self, item, spider):
         try:
             # Define insert statement
-            self.cur.execute(""" insert into news (link, text, datetime) values (%s,%s,%s)""", (
+            self.cur.execute(""" insert into news (link, text, datetime, region) values (%s,%s,%s,%s)""", (
                 item['link'],
                 item['text'],
-                item['time']
+                item['time'],
+                item['region']
             ))
-            print("cuckshoulder")
         except:
             self.connection.rollback()
 
@@ -40,7 +40,6 @@ class BbcScraperPipeline:
     
 
     def close_spider(self, spider):
-
         ## Close cursor & connection to database 
         self.cur.close()
         self.connection.close()
