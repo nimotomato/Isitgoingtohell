@@ -33,7 +33,6 @@ class BbcScraperPipeline:
             try:
                 # Define insert statement
                 self.cur.execute(""" insert into news (link, text, datetime, region) values (%s,%s,%s,%s)""", (
-                    item['link'],
                     item['text'],
                     item['time'],
                     item['region']

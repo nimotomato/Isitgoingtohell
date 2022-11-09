@@ -25,7 +25,6 @@ class BbcSpider(CrawlSpider):
             #Find most headlines and timestamps within div.
            scraper_item = BbcScraperItem()
            if div.css('a h3::text'):
-                scraper_item['link'] = response.url
                 scraper_item['text'] = div.css('a h3::text').get().replace("'", "''")
                 scraper_item['time'] = div.css('time::attr(datetime)').get().split('T')[0]
                 if scraper_item['time'] == None:

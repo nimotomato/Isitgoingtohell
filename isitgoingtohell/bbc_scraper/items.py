@@ -7,7 +7,6 @@ import scrapy
 
 
 class BbcScraperItem(scrapy.Item):
-    link = scrapy.Field()
     text = scrapy.Field()
     time = scrapy.Field()
     region = scrapy.Field()
