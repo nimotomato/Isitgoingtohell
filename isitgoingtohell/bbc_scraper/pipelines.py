@@ -23,19 +23,26 @@ class BbcScraperPipeline:
         self.cur = self.connection.cursor()
     
     def process_item(self, item, spider):
-        try:
-            # Define insert statement
-            self.cur.execute(""" insert into news (link, text, datetime, region) values (%s,%s,%s,%s)""", (
-                item['link'],
-                item['text'],
-                item['time'],
-                item['region']
-            ))
-        except:
-            self.connection.rollback()
+        #problematic when there is ' in text
+        self.cur.execute(f""" select * from news where text = '{item['text']}' """)
+        check_empty = self.cur.fetchone()
 
-        ## Execute insert of data into database
-        self.connection.commit()
+        if check_empty:
+            spider.logger.warn("Item already in database.")
+        else:
+            try:
+                # Define insert statement
+                self.cur.execute(""" insert into news (link, text, datetime, region) values (%s,%s,%s,%s)""", (
+                    item['link'],
+                    item['text'],
+                    item['time'],
+                    item['region']
+                ))
+            except:
+                self.connection.rollback()
+
+            ## Execute insert of data into database
+            self.connection.commit()
         return item
     
 
