@@ -26,9 +26,11 @@ class BbcSpider(CrawlSpider):
            scraper_item = BbcScraperItem()
            if div.css('a h3::text'):
                 scraper_item['text'] = div.css('a h3::text').get().replace("'", "''")
-                scraper_item['time'] = div.css('time::attr(datetime)').get().split('T')[0]
+                scraper_item['time'] = div.css('time::attr(datetime)').get()
                 if scraper_item['time'] == None:
                     scraper_item['time'] = str(date.today().isoformat())
+                else:
+                    scraper_item['time'] = scraper_item['time'].split('T')[0]
                 region = re.search(r"/world/([a-z]+_?[a-z]+?[a-z]+_?[a-z]+)", response.url)
                 scraper_item['region'] = region.group(1)
 

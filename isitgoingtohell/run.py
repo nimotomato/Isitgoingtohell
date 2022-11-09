@@ -3,11 +3,11 @@ from transformers import pipeline
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.utils import load_toml, load_json
 from scrapy.crawler import CrawlerProcess
+from isitgoingtohell.bbc_scraper import settings
 import pprint
-import isitgoingtohell.bbc_scraper.settings
-
 
 def main():
+
     # # load config
     # config = load_toml("config.toml")
 

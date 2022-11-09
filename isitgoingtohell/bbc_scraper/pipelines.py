@@ -32,7 +32,7 @@ class BbcScraperPipeline:
         else:
             try:
                 # Define insert statement
-                self.cur.execute(""" insert into news (link, text, datetime, region) values (%s,%s,%s,%s)""", (
+                self.cur.execute(""" insert into news (text, datetime, region) values (%s,%s,%s)""", (
                     item['text'],
                     item['time'],
                     item['region']
