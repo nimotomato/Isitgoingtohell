@@ -19,7 +19,7 @@ class BbcSpider(CrawlSpider):
     )
 
     def parse_item(self, response):
-    #     #Find all divs
+        #Find all divs
         divs = response.css('div')
         for div in divs:
             #Find most headlines and timestamps within div.
