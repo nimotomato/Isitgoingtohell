@@ -5,18 +5,18 @@ from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.db_management import db_management
 
 def main():
-    # # Initiates webscraper
-    # run_spider()
+    # Initiates webscraper
+    run_spider()
 
-    # # Analyzes data
-    # data = analyze_data()
+    # Analyzes data
+    data = analyze_data()
 
-    # # Save data locally
-    # write_json(data)
+    # Save data locally
+    write_json(data)
 
-    # TO DO: upload data to postgres @ render
-    db = db_management.DB()
-    db.upload_data(filename="anal_result.json")
+    # # TO DO: upload data to postgres @ render
+    # db = db_management.DB()
+    # db.upload_data(filename="anal_result.json")
 
 def analyze_data() -> list:
     anal = sentiment_analysis.Analyzer()

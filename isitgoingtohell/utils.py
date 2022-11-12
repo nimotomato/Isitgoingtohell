@@ -14,8 +14,8 @@ def load_json(file_path) -> dict:
 
     return data
 
-def write_json(dictionary, filename="anal_result.json"):
+def write_json(dictionary, filename="result.json"):
     json_object = json.dumps(dictionary, indent=1)
 
-    with open(filename, "a") as outfile:
+    with open(filename, "w") as outfile:
         outfile.write(json_object)
