@@ -19,17 +19,22 @@ class BbcSpider(CrawlSpider):
     )
 
     def parse_item(self, response):
-        #Find all divs
+        # Find all divs in page
         divs = response.css('div')
+
         for div in divs:
-            #Find most headlines and timestamps within div.
+           # Find most headlines and timestamps within div
            scraper_item = BbcScraperItem()
            if div.css('a h3::text'):
+                # Format text regarding quotation marks, assist in future SQL-queries
                 scraper_item['text'] = div.css('a h3::text').get().replace("'", "''")
+                # Make sure there is a timestamp. If not stamp of news, then stamp when scraped.
                 try:
                     scraper_item['time'] = div.css('time::attr(datetime)').get().split('T')[0]
+                    if scraper_item['time'] == "P":
+                        scraper_item['time'] = str(date.today().isoformat())     
                 except:
-                    scraper_item['time'] = str(date.today().isoformat())     
+                    scraper_item['time'] = str(date.today().isoformat())  
                 region = re.search(r"/world/([a-z]+_?[a-z]+?[a-z]+_?[a-z]+)", response.url)
                 scraper_item['region'] = region.group(1)
 

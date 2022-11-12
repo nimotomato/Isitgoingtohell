@@ -10,9 +10,30 @@ import psycopg2
 from isitgoingtohell.utils import load_toml
 from transformers import pipeline
 import numpy as np
+from scrapy.exceptions import DropItem
 
 
-class BbcScraperPipeline:
+filename = 'items'
+
+class DuplicatesPipeline:
+
+    def __init__(self):
+        # Keep track of seen items
+        self.ids_seen = set()
+
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        # Text is unique in database, so item is identified by text
+        if adapter['text'] in self.ids_seen:
+            raise DropItem("Duplicate item found: %r" % item)
+        else:
+            self.ids_seen.add(adapter['text'])
+            return item
+
+
+
+class CompositePipeline:
+    # This pipeline can do it all; connect to database, analyze data with sentiment analyzer and upload data. It is however very slow.
     def __init__(self):
         hostname = 'dpg-cdjur3un6mpngruf3uag-a.oregon-postgres.render.com'
         username = 'news_db_itmr_user'
@@ -53,7 +74,11 @@ class BbcScraperPipeline:
                 item['label'] = analysis['label']
                 item['score'] = np.round(analysis['score'],4)
 
-                self.cur.execute(""" insert into analysis (sentiment, confidence, text) values (%s,%s,%s)""", (item['label'], item['score'], item['text']) )
+                self.cur.execute(""" insert into analysis (sentiment, confidence, text) values (%s,%s,%s)""", (
+                    item['label'], 
+                    item['score'], 
+                    item['text']
+                ))
                     
             except:
                 self.connection.rollback()

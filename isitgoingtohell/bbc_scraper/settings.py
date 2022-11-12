@@ -62,7 +62,8 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'bbc_scraper.pipelines.BbcScraperPipeline': 300,
+   'bbc_scraper.pipelines.DuplicatesPipeline': 200
+   #'bbc_scraper.pipelines.CompositePipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

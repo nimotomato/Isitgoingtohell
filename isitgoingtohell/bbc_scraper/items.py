@@ -5,10 +5,11 @@
 
 import scrapy
 
-
 class BbcScraperItem(scrapy.Item):
     text = scrapy.Field()
     time = scrapy.Field()
     region = scrapy.Field()
     label = scrapy.Field()
     score = scrapy.Field()
+
+

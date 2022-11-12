@@ -1,31 +1,34 @@
-# from isitgoingtohell.sentiment_analysis.sentiment_analyser import SentimentAnalyser
-from transformers import pipeline
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
-from isitgoingtohell.utils import load_toml, load_json
+from isitgoingtohell.utils import write_json
 from scrapy.crawler import CrawlerProcess
-from isitgoingtohell.bbc_scraper import settings
-import pprint
+from isitgoingtohell.sentiment_analyzer import sentiment_analysis
+from isitgoingtohell.db_management import db_management
 
 def main():
+    # # Initiates webscraper
+    # run_spider()
 
-    # # load config
-    # config = load_toml("config.toml")
+    # # Analyzes data
+    # data = analyze_data()
 
-    # # set up sentiment analysis model
-    # sentiment_analyser = pipeline(model=config["sentiment_analysis"]["model"])
-    run_spider()
-    
-#     news = [d["text"] for d in load_json("items.json")]
+    # # Save data locally
+    # write_json(data)
 
-# # get sentiment
-#     scores = sentiment_analyser(news)
-#     pprint.pprint(list(zip(news, scores)))
+    # TO DO: upload data to postgres @ render
+    db = db_management.DB()
+    db.upload_data(filename="anal_result.json")
+
+def analyze_data() -> list:
+    anal = sentiment_analysis.Analyzer()
+    return anal.analyze_json()
 
 def run_spider():
-    process = CrawlerProcess(settings={
+    process = CrawlerProcess(settings={'FEED_FORMAT': 'json',
+        'FEED_URI': 'result.json',
         'ITEM_PIPELINES': {
-   'isitgoingtohell.bbc_scraper.pipelines.BbcScraperPipeline': 300}
-    })
+    'isitgoingtohell.bbc_scraper.pipelines.DuplicatesPipeline': 200
+    }}
+    )
     process.crawl(BbcSpider)
     process.start()
 
