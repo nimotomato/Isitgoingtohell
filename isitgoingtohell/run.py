@@ -1,11 +1,12 @@
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
-from isitgoingtohell.utils import write_json, load_json, delete_local_file
+from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.db_management import db_management
 
 def main():
     cache_filename = 'cache.json'
+
     # Initiate webscraper
     run_spider(cache_filename)
 
