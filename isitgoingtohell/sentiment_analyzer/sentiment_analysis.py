@@ -40,8 +40,9 @@ class Analyzer():
         # Create list of all headlines in database. Probably doesn't scale great, but is quick.
         db = DB()
         db.cur.execute(f""" select headline from {tablename} """)
+        headlines = [i[0] for i in db.cur.fetchall()]
         db.close_connection(message=False)
-        return [i[0] for i in db.cur.fetchall()]
+        return headlines
 
 
     def clean_data_nuggets(self, scraped_data_nugget, analyzed_data_nugget):
