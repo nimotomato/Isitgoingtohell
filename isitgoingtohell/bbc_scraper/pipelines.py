@@ -24,10 +24,10 @@ class DuplicatesPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         # Text is unique in database, so item is identified by text
-        if adapter['text'] in self.ids_seen:
+        if adapter['headline'] in self.ids_seen:
             raise DropItem("Duplicate item found: %r" % item)
         else:
-            self.ids_seen.add(adapter['text'])
+            self.ids_seen.add(adapter['headline'])
             return item
 
 
@@ -64,8 +64,8 @@ class CompositePipeline:
 
                 # News table 
                 self.cur.execute(""" insert into news (text, datetime, region) values (%s,%s,%s)""", (
-                    item['text'],
-                    item['time'],
+                    item['headline'],
+                    item['date'],
                     item['region']
                 ))
                 # Sentiment_analysis table

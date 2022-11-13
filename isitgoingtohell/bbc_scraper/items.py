@@ -6,7 +6,7 @@
 import scrapy
 
 class BbcScraperItem(scrapy.Item):
-    text = scrapy.Field()
+    headline = scrapy.Field()
     date = scrapy.Field()
     region = scrapy.Field()
     label = scrapy.Field()

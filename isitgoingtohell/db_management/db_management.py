@@ -24,10 +24,10 @@ class DB():
         # Get table col names
         tables = self.get_col_names_not_id(tablename)
 
-
         # Insert the goodies to db.
         query = f"insert into {tablename} ({tables}) values"
         self.cur.execute(f"""{query} """ + (args))
+        print("Uploaded data.")
         self.connection.commit()
 
 
@@ -56,6 +56,7 @@ class DB():
 
 
     def verify_data(self, filename="result.json", tablename="data"):
+        # Verify all data from local file has been uploaded to database.
         self.cur.execute(f""" select headline from {tablename} """)
 
         bool = True
@@ -75,18 +76,7 @@ class DB():
         return bool
 
 
-    def delete_local_file(self, file_path):
-        print("Cleanup initiated...")
-        # Verify that the file exists.
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            print(f"{file_path} deleted. ")
-            return True
-
-        print(f"{file_path} does not exist. ")
-        return False
-
-
     def close_connection(self):
+        self.cur.close()
         self.connection.close()
         print("Connection closed. ")
