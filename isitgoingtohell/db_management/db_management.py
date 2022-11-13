@@ -76,7 +76,8 @@ class DB():
         return bool
 
 
-    def close_connection(self):
+    def close_connection(self, message=True):
         self.cur.close()
         self.connection.close()
-        print("Connection closed. ")
+        if message:
+            print("Connection closed. ")

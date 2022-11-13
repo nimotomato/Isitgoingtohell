@@ -40,6 +40,7 @@ class Analyzer():
         # Create list of all headlines in database. Probably doesn't scale great, but is quick.
         db = DB()
         db.cur.execute(f""" select headline from {tablename} """)
+        db.close_connection(message=False)
         return [i[0] for i in db.cur.fetchall()]
 
 

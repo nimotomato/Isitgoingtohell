@@ -2,7 +2,7 @@ from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analyzer import sentiment_analysis
-from isitgoingtohell.db_management import db_management
+from isitgoingtohell.db_management.db_management import DB
 
 def main():
     cache_filename = 'cache.json'
@@ -21,7 +21,7 @@ def main():
 
 def run_db(data):
     if data:
-        db = db_management.DB()
+        db = DB()
         db.upload_data_postgres(data)
 
         if db.verify_data(data):
