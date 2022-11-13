@@ -5,27 +5,30 @@ from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.db_management import db_management
 
 def main():
-    # # Initiates webscraper
-    # run_spider('result.json')
+    # Initiates webscraper
+    run_spider('result.json')
 
     # # Analyzes data
-    # data = analyze_data('result.json')
+    data = analyze_data('result.json')
 
-    # # Save data locally
-    # write_json(data)
+    # Save data locally
+    write_json(data)
 
     db = db_management.DB()
-    data=load_json("result.json")
+    data = load_json("result.json")
 
     # TO DO: fix this shit
-    # db.upload_data_postgres(data)
+    db.upload_data_postgres(data)
 
-    # if db.verify_data(data):
-    #     db.delete_local_file()
+    if db.verify_data(data):
+        db.delete_local_file('result.json')
+
+    db.close_connection()
 
 
 def analyze_data(json_file) -> list:
     anal = sentiment_analysis.Analyzer()
+    print("Analyzing data...")
     return anal.analyze_json(filename=json_file)
 
 

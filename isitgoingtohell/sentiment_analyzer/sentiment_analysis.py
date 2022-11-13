@@ -23,10 +23,12 @@ class Analyzer():
 
             # Go through data from each headline/text-item and append to main list.
             for item in analyzed_data:
-                item['text'] = row['text']
-                item['date'] = row['time']
-                item['region'] = row['region']
-                item['score'] = np.round(item['score'], 4)
-                j_list.append(item)
+                output = {}
+                output['headline'] = row['text']
+                output['date'] = row['date']
+                output['region'] = row['region']
+                output['label'] = item['label']
+                output['score'] = np.round(item['score'], 4)
+                j_list.append(output)
                 
         return j_list          

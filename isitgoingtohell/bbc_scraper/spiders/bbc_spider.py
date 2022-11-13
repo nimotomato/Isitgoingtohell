@@ -30,11 +30,11 @@ class BbcSpider(CrawlSpider):
                 scraper_item['text'] = div.css('a h3::text').get().replace("'", "''")
                 # Make sure there is a timestamp. If not stamp of news, then stamp when scraped.
                 try:
-                    scraper_item['time'] = div.css('time::attr(datetime)').get().split('T')[0]
-                    if scraper_item['time'] == "P":
-                        scraper_item['time'] = str(date.today().isoformat())     
+                    scraper_item['date'] = div.css('time::attr(datetime)').get().split('T')[0]
+                    if scraper_item['date'] == "P":
+                        scraper_item['date'] = str(date.today().isoformat())     
                 except:
-                    scraper_item['time'] = str(date.today().isoformat())  
+                    scraper_item['date'] = str(date.today().isoformat())  
                 region = re.search(r"/world/([a-z]+_?[a-z]+?[a-z]+_?[a-z]+)", response.url)
                 scraper_item['region'] = region.group(1)
 

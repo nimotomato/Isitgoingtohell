@@ -17,12 +17,18 @@ class DB():
 
 
     def upload_data_postgres(self, data, tablename="data"):
+
+        # Get all data from json data as single string
         args = self.mogrify_data(data)
 
-        self.cur.execute(f"""insert into {tablename} values """ + (args))
+        # Get table col names
+        tables = self.get_col_names_not_id(tablename)
 
+
+        # Insert the goodies to db.
+        query = f"insert into {tablename} ({tables}) values"
+        self.cur.execute(f"""{query} """ + (args))
         self.connection.commit()
-        self.connection.close()
 
 
     def mogrify_data(self, data):
@@ -38,20 +44,34 @@ class DB():
         return value_string
 
 
+    def get_col_names_not_id(self, tablename):
+        # Get names from col except for id
+        self.cur.execute(f"""select * from {tablename}""")
+
+        # Gets all col names except for id
+        column_names_list = [col[0] for col in self.cur.description if col[0] != 'id']
+        column_names_string = ",".join(column_names_list)
+
+        return column_names_string
+
+
     def verify_data(self, filename="result.json", tablename="data"):
-        self.cur.execute(f""" select text from {tablename}) """)
+        self.cur.execute(f""" select headline from {tablename} """)
 
         bool = True
         error_counter = 0
 
+        all_headlines = [text[0] for text in self.cur.fetchall()]
+
         # Compare data in local file to data in database. Count errors.
         for row in filename:
-            if row['text'] not in self.cur.fetchall():
-                print(f"Item text: {row['text']} was not found in {tablename}")
+            if row['headline'] not in all_headlines:
+                print(f"Item text: {row['headline']} was not found in {tablename}")
                 bool = False
                 error_counter += 1
 
         print(f"Data verification completed. {str(error_counter)} errors encountered. ")
+
         return bool
 
 
@@ -69,3 +89,4 @@ class DB():
 
     def close_connection(self):
         self.connection.close()
+        print("Connection closed. ")
