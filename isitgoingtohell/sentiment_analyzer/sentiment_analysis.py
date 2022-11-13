@@ -20,33 +20,37 @@ class Analyzer():
         # Store list of dictionaries
         analyzed_data = []
 
-        db = DB()
-        db.cur.execute(f""" select headline from data """)
-        # Create list of all headlines in database. Probably doesn't scale great, but is quick.
-        check_empty = [i[0] for i in db.cur.fetchall()]
-
-        for row in raw_json_data:
+        headlines = self.get_headlines('data')
+        
+        for scraped_data_nugget in raw_json_data:
             # Check for duplicates in DB
-            if row['headline'] in check_empty:
+            if scraped_data_nugget['headline'] in headlines:
                 print("Item already in database.")
             else:
                 # Apply sentiment analysis on raw data
-                analyzed_data_nuggets = self.sentiment_analyser(row['headline'])
-                # Go through data from each headline/text-item and append to main list.
-                for item in analyzed_data_nuggets:
-                        analyzed_data.append(self.clean_data_nugget(row, item))
+                analyzed_data_nuggets = self.sentiment_analyser(scraped_data_nugget['headline'])
+                # Go through scraped data, analyze each headline and append to main list.
+                for analyzed_data_nugget in analyzed_data_nuggets:
+                        analyzed_data.append(self.clean_data_nuggets(scraped_data_nugget, analyzed_data_nugget))
 
         return analyzed_data
 
 
-    def clean_data_nugget(self, row, item):
+    def get_headlines(self, tablename) -> list:
+        # Create list of all headlines in database. Probably doesn't scale great, but is quick.
+        db = DB()
+        db.cur.execute(f""" select headline from {tablename} """)
+        return [i[0] for i in db.cur.fetchall()]
+
+
+    def clean_data_nuggets(self, scraped_data_nugget, analyzed_data_nugget):
         # Necessary for analyze_json method.
         # Cleans analyzed data.
         output = {}
-        output['headline'] = row['headline']
-        output['date'] = row['date']
-        output['region'] = row['region']
-        output['label'] = item['label']
-        output['score'] = np.round(item['score'], 4)
+        output['headline'] = scraped_data_nugget['headline']
+        output['date'] = scraped_data_nugget['date']
+        output['region'] = scraped_data_nugget['region']
+        output['label'] = analyzed_data_nugget['label']
+        output['score'] = np.round(analyzed_data_nugget['score'], 4)
 
         return output

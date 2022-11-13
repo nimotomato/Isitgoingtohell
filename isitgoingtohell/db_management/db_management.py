@@ -27,7 +27,7 @@ class DB():
         # Insert the goodies to db.
         query = f"insert into {tablename} ({tables}) values"
         self.cur.execute(f"""{query} """ + (args))
-        print("Uploaded data.")
+        print(f"Uploaded {len(data)} item(s).")
         self.connection.commit()
 
 
@@ -55,7 +55,7 @@ class DB():
         return column_names_string
 
 
-    def verify_data(self, filename="result.json", tablename="data"):
+    def verify_data(self, filename="cache.json", tablename="data"):
         # Verify all data from local file has been uploaded to database.
         self.cur.execute(f""" select headline from {tablename} """)
 

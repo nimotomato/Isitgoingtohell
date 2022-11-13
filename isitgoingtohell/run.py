@@ -5,10 +5,11 @@ from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.db_management import db_management
 
 def main():
+    cache_filename = 'cache.json'
     # Initiate webscraper
-    run_spider('result.json')
+    run_spider(cache_filename)
 
-    raw_json = load_json('result.json')
+    raw_json = load_json(cache_filename)
 
     # Analyze data
     data = run_analyzer(raw_json)
@@ -23,19 +24,18 @@ def run_db(data):
         db.upload_data_postgres(data)
 
         if db.verify_data(data):
-            delete_local_file('result.json')
+            delete_local_file('cache.json')
 
         db.close_connection()
 
     else:
         print("No new items to upload. ")
-        delete_local_file('result.json')
+        delete_local_file('cache.json')
 
-
-def run_analyzer(json_file) -> list:
+def run_analyzer(json_data) -> list:
     anal = sentiment_analysis.Analyzer()
     print("Analyzing data...")
-    return anal.analyze_json(json_file)
+    return anal.analyze_json(json_data)
 
 def run_spider(output_filename):
     process = CrawlerProcess(settings={'FEED_FORMAT': 'json',

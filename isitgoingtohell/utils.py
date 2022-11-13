@@ -14,11 +14,12 @@ def load_json(file_path) -> dict:
 
     return data
 
-def write_json(dictionary, filename='result.json'):
+def write_json(dictionary, file_path='result.json'):
+    # Write json-formatted data to file.
     json_object = json.dumps(dictionary, indent=1)
 
-    with open(filename, "w") as outfile:
-        outfile.write(json_object)
+    with open(file_path, "w") as f:
+        f.write(json_object)
 
 def delete_local_file(file_path):
         print("Cleanup initiated...")
@@ -26,5 +27,5 @@ def delete_local_file(file_path):
         if os.path.exists(file_path):
             os.remove(file_path)
             print(f"{file_path} deleted. ")
-
-        print(f"{file_path} does not exist. ")
+        else:
+            print(f"{file_path} does not exist. ")
