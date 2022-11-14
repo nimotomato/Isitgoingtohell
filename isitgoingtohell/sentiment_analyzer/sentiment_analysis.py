@@ -20,7 +20,7 @@ class Analyzer():
         # Store list of dictionaries
         analyzed_data = []
 
-        headlines = self.get_headlines('data')
+        headlines = self.get_headlines()
         
         for scraped_data_nugget in raw_json_data:
             # Check for duplicates in DB
@@ -36,13 +36,9 @@ class Analyzer():
         return analyzed_data
 
 
-    def get_headlines(self, tablename) -> list:
-        # Create list of all headlines in database. Probably doesn't scale great, but is quick.
+    def get_headlines(self):
         db = DB()
-        db.cur.execute(f""" select headline from {tablename} """)
-        headlines = [i[0] for i in db.cur.fetchall()]
-        db.close_connection(message=False)
-        return headlines
+        return db.get_col_data('data', 'headline', outbound=True)
 
 
     def clean_data_nuggets(self, scraped_data_nugget, analyzed_data_nugget):

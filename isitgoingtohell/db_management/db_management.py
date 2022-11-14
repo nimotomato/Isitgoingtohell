@@ -44,7 +44,7 @@ class DB():
         return value_string
 
 
-    def get_col_names_not_id(self, tablename):
+    def get_col_names_not_id(self, tablename, outbound=False):
         # Get names from col except for id
         self.cur.execute(f"""select * from {tablename}""")
 
@@ -52,7 +52,20 @@ class DB():
         column_names_list = [col[0] for col in self.cur.description if col[0] != 'id']
         column_names_string = ",".join(column_names_list)
 
+        if outbound:
+            self.close_connection(message=False)
+
         return column_names_string
+
+    def get_col_data(self, tablename, column_name, outbound=False) -> list:
+        # Create list of all headlines in database. Probably doesn't scale great, but is quick.
+        self.cur.execute(f""" select {column_name} from {tablename} """)
+        col_names = [i[0] for i in self.cur.fetchall()]
+
+        if outbound:
+            self.close_connection(message=False)
+
+        return col_names
 
 
     def verify_data(self, filename="cache.json", tablename="data"):

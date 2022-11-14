@@ -3,14 +3,22 @@ from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.db_management.db_management import DB
+from json import JSONDecodeError
+import sys
+
+cache_filename = 'cache.json'
 
 def main():
-    cache_filename = 'cache.json'
-
     # Initiate webscraper
     run_spider(cache_filename)
 
-    raw_json = load_json(cache_filename)
+    try:
+        raw_json = load_json(cache_filename)
+    except JSONDecodeError:
+        delete_local_file(cache_filename)
+        sys.exit("JSONDecodeError found. Probably faulty cache. \n Cache reset. Try again...")
+    except FileNotFoundError:
+        sys.exit("FileNotFoundError. Confirm cache_filename.")
 
     # Analyze data
     data = run_analyzer(raw_json)
@@ -22,16 +30,27 @@ def main():
 def run_db(data):
     if data:
         db = DB()
-        db.upload_data_postgres(data)
+        try:
+            db.upload_data_postgres(data)
+        except:
+            print("Error uploading data.")
 
         if db.verify_data(data):
-            delete_local_file('cache.json')
-
+            try:
+                print("Cleanup initiated...")
+                delete_local_file(cache_filename)
+                print(f"{cache_filename} deleted. ")
+            except FileNotFoundError:
+                pass
         db.close_connection()
 
     else:
-        print("No new items to upload. ")
-        delete_local_file('cache.json')
+        print('No new items to upload. ')
+        try:
+            print("Cleanup initiated...")
+            delete_local_file(cache_filename)
+        except FileNotFoundError:
+            pass
 
 def run_analyzer(json_data) -> list:
     anal = sentiment_analysis.Analyzer()
