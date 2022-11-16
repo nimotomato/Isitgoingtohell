@@ -3,28 +3,25 @@ from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.db_management.db_management import DB
-from json import JSONDecodeError
-import sys
+import os
 
-cache_filename = 'cache.json'
+CACHE_FILENAME = 'cache.json'
 
 def main():
+    if os.path.exists(CACHE_FILENAME):
+        delete_local_file(CACHE_FILENAME)
     # Initiate webscraper
-    run_spider(cache_filename)
+    run_spider(CACHE_FILENAME)
 
-    try:
-        raw_json = load_json(cache_filename)
-    except JSONDecodeError:
-        delete_local_file(cache_filename)
-        sys.exit("JSONDecodeError found. Probably faulty cache. \n Cache reset. Try again...")
-    except FileNotFoundError:
-        sys.exit("FileNotFoundError. Confirm cache_filename.")
+    raw_news_data = load_json(CACHE_FILENAME)
+
 
     # Analyze data
-    data = run_analyzer(raw_json)
+    analyzed_data = run_analyzer(raw_news_data)
     
     # Db stuff
-    run_db(data)
+    run_db(analyzed_data)
+
 
 
 def run_db(data):
@@ -38,8 +35,8 @@ def run_db(data):
         if db.verify_data(data):
             try:
                 print("Cleanup initiated...")
-                delete_local_file(cache_filename)
-                print(f"{cache_filename} deleted. ")
+                delete_local_file(CACHE_FILENAME)
+                print(f"{CACHE_FILENAME} deleted. ")
             except FileNotFoundError:
                 pass
         db.close_connection()
@@ -48,7 +45,7 @@ def run_db(data):
         print('No new items to upload. ')
         try:
             print("Cleanup initiated...")
-            delete_local_file(cache_filename)
+            delete_local_file(CACHE_FILENAME)
         except FileNotFoundError:
             pass
 
@@ -57,11 +54,12 @@ def run_analyzer(json_data) -> list:
     print("Analyzing data...")
     return anal.analyze_json(json_data)
 
-def run_spider(output_filename):
+def run_spider(CACHE_FILENAME):
     process = CrawlerProcess(settings={'FEED_FORMAT': 'json',
-        'FEED_URI': output_filename,
+        'FEED_URI': CACHE_FILENAME,
         'ITEM_PIPELINES': {
-    'isitgoingtohell.bbc_scraper.pipelines.DuplicatesPipeline': 200
+    'isitgoingtohell.bbc_scraper.pipelines.DuplicatesPipeline': 200,
+    'isitgoingtohell.bbc_scraper.pipelines.IsocodePipeline': 30
     }}
     )
     process.crawl(BbcSpider)

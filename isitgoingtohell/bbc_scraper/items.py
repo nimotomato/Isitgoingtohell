@@ -11,5 +11,5 @@ class BbcScraperItem(scrapy.Item):
     region = scrapy.Field()
     label = scrapy.Field()
     score = scrapy.Field()
-
+    iso_code = scrapy.Field()
 
