@@ -21,6 +21,7 @@ class Analyzer():
         analyzed_data = []
 
         headlines = self.get_headlines()
+
         
         for scraped_data_nugget in raw_json_data:
             # Check for duplicates in DB
@@ -50,5 +51,6 @@ class Analyzer():
         output['region'] = scraped_data_nugget['region']
         output['label'] = analyzed_data_nugget['label']
         output['score'] = np.round(analyzed_data_nugget['score'], 4)
+        output['iso_code'] = scraped_data_nugget['iso_code']
 
         return output

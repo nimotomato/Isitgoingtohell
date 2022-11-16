@@ -35,11 +35,11 @@ class DB():
         # Turn json data into a single query string
         _values = []
 
-        # Mogrify method nees list of tuples. We shall provide.
+        # Mogrify method needs list of tuples. We shall provide.
         for row in data:
             _values.append(tuple(row.values()))
 
-        value_string = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s)", row).decode('utf-8') for row in _values)
+        value_string = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", row).decode('utf-8') for row in _values)
 
         return value_string
 
@@ -88,6 +88,9 @@ class DB():
 
         return bool
 
+    def get_all_data(self, tablename:str):
+        self.cur.execute(f""" select * from {tablename} """)
+        return self.cur.fetchall()
 
     def close_connection(self, message=True):
         self.cur.close()
