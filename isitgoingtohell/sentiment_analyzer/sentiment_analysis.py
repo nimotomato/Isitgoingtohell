@@ -1,5 +1,5 @@
 from isitgoingtohell.utils import load_toml, load_json
-from isitgoingtohell.db_management.db_management import DB
+from isitgoingtohell.data_management.db_management import DB
 from transformers import pipeline
 import numpy as np
 from psycopg2 import errorcodes, errors

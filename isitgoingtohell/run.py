@@ -2,27 +2,35 @@ from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analyzer import sentiment_analysis
-from isitgoingtohell.db_management.db_management import DB
+from isitgoingtohell.data_management.db_management import DB
+from isitgoingtohell.data_management.data_analysis import Calculate_ratio_dated as CRD
+from isitgoingtohell.data_management.data_analysis import Calculate_ratio_total as CRT
 import os
+import pandas as pd
+
 
 CACHE_FILENAME = 'cache.json'
 
 def main():
-    if os.path.exists(CACHE_FILENAME):
-        delete_local_file(CACHE_FILENAME)
-    # Initiate webscraper
-    run_spider(CACHE_FILENAME)
+    # if os.path.exists(CACHE_FILENAME):
+    #     delete_local_file(CACHE_FILENAME)
+    # # Initiate webscraper
+    # run_spider(CACHE_FILENAME)
 
-    raw_news_data = load_json(CACHE_FILENAME)
+    # raw_news_data = load_json(CACHE_FILENAME)
 
-
-    # Analyze data
-    analyzed_data = run_analyzer(raw_news_data)
+    # # Analyze data
+    # analyzed_data = run_analyzer(raw_news_data)
     
-    # Db stuff
-    run_db(analyzed_data)
+    # # Db stuff
+    # run_db(analyzed_data)
 
+    crd = CRD()
+    crt = CRT()
 
+    data_dated = crd.calculate_ratio_dated()
+    data_total = crt.calculate_ratio_total()
+    print(data_dated, data_total)
 
 def run_db(data):
     if data:
