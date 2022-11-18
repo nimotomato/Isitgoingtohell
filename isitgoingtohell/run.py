@@ -6,30 +6,32 @@ from isitgoingtohell.data_management.db_management import DB
 from isitgoingtohell.data_management.data_analysis import Dated_methods as DM
 import os
 import pandas as pd
-from isitgoingtohell.graph.graph import Graph
+from isitgoingtohell.graph.graph import Dated_graph as DG
+from isitgoingtohell.graph.graph import Undated_graph as UG
 
 CACHE_FILENAME = 'cache.json'
 
 def main():
-    if os.path.exists(CACHE_FILENAME):
-        delete_local_file(CACHE_FILENAME)
-    # Initiate webscraper
-    run_spider(CACHE_FILENAME)
+    # if os.path.exists(CACHE_FILENAME):
+    #     delete_local_file(CACHE_FILENAME)
+    # # Initiate webscraper
+    # run_spider(CACHE_FILENAME)
 
-    raw_news_data = load_json(CACHE_FILENAME)
+    # raw_news_data = load_json(CACHE_FILENAME)
 
-    # Analyze data
-    analyzed_data = run_analyzer(raw_news_data)
+    # # Analyze data
+    # analyzed_data = run_analyzer(raw_news_data)
     
-    # Db stuff
-    run_db(analyzed_data)
+    # # Db stuff
+    # run_db(analyzed_data)
     
     # Runs graph
     run_graph()
 
 def run_graph():
-    graph = Graph()
-    graph.draw_choropleth()
+    ug = UG()
+    dg = DG()
+    ug.draw_choropleth()
 
 def run_db(data):
     if data:
