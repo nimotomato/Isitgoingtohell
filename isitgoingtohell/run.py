@@ -11,18 +11,18 @@ from isitgoingtohell.graph.graph import Graph
 CACHE_FILENAME = 'cache.json'
 
 def main():
-    # if os.path.exists(CACHE_FILENAME):
-    #     delete_local_file(CACHE_FILENAME)
-    # # Initiate webscraper
-    # run_spider(CACHE_FILENAME)
+    if os.path.exists(CACHE_FILENAME):
+        delete_local_file(CACHE_FILENAME)
+    # Initiate webscraper
+    run_spider(CACHE_FILENAME)
 
-    # raw_news_data = load_json(CACHE_FILENAME)
+    raw_news_data = load_json(CACHE_FILENAME)
 
-    # # Analyze data
-    # analyzed_data = run_analyzer(raw_news_data)
+    # Analyze data
+    analyzed_data = run_analyzer(raw_news_data)
     
-    # # Db stuff
-    # run_db(analyzed_data)
+    # Db stuff
+    run_db(analyzed_data)
     
     # Runs graph
     run_graph()
