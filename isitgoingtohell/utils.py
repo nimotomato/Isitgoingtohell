@@ -1,6 +1,26 @@
 import toml
 import json
 import os
+from csv import DictReader, DictWriter
+
+def load_csv(file_path):
+    with open(file_path, newline='') as f:
+        data = list(DictReader(f))
+    
+    return data
+
+def write_csv(file_path, data: dict):
+    with open(file_path, "w", newline='') as outfile:
+   
+        fieldnames = list(data.keys())
+        
+        writer = DictWriter(outfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row.lower())
+
+        
 
 def load_toml(file_path) -> dict:
     with open(file_path, "r") as f:

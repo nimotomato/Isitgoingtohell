@@ -1,13 +1,12 @@
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
-from isitgoingtohell.utils import load_json, delete_local_file
+from isitgoingtohell.utils import load_json, delete_local_file, load_csv, write_csv
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analyzer import sentiment_analysis
 from isitgoingtohell.data_management.db_management import DB
-from isitgoingtohell.data_management.data_analysis import Calculate_ratio_dated as CRD
-from isitgoingtohell.data_management.data_analysis import Calculate_ratio_total as CRT
+from isitgoingtohell.data_management.data_analysis import Dated_methods as DM
 import os
 import pandas as pd
-
+from isitgoingtohell.graph.graph import Graph
 
 CACHE_FILENAME = 'cache.json'
 
@@ -24,13 +23,13 @@ def main():
     
     # # Db stuff
     # run_db(analyzed_data)
+    
+    # Runs graph
+    run_graph()
 
-    crd = CRD()
-    crt = CRT()
-
-    data_dated = crd.calculate_ratio_dated()
-    data_total = crt.calculate_ratio_total()
-    print(data_dated, data_total)
+def run_graph():
+    graph = Graph()
+    graph.draw_choropleth()
 
 def run_db(data):
     if data:
