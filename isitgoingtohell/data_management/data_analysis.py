@@ -142,8 +142,6 @@ class Undated_methods(Data_Analysis):
 
     def populate_regions(self, region_scores, regions=REGIONS) -> list:
         # Runs populate_countries for all regions
-
-
         populated_regions = []
         for region in regions:
             populated_regions.extend(self.populate_countries(region_scores, region))

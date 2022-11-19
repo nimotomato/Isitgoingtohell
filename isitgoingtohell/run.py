@@ -14,17 +14,17 @@ CACHE_FILENAME = 'cache.json'
 def main():
     db = DB()
     dm = DM()
-    # SCRAPE DATA
-    if os.path.exists(CACHE_FILENAME):
-        delete_local_file(CACHE_FILENAME)
-    # Initiate webscraper
-    run_spider(CACHE_FILENAME)
+    # # SCRAPE DATA
+    # if os.path.exists(CACHE_FILENAME):
+    #     delete_local_file(CACHE_FILENAME)
+    # # Initiate webscraper
+    # run_spider(CACHE_FILENAME)
 
-    # LOAD SCRAPED DATA
-    data = load_json(CACHE_FILENAME)
+    # # LOAD SCRAPED DATA
+    # data = load_json(CACHE_FILENAME)
 
-    # UPLOAD TO DB
-    run_db(data, db)
+    # # UPLOAD TO DB
+    # run_db(data, db)
     
     # # LOAD DATA FROM DATABASE, OR JUST COMMENT OUT TO LOAD FROM FILE
     # scraped_data = db.get_unanalysed_data()
@@ -44,11 +44,11 @@ def main():
     # geography_data = dm.populate_regions(region_scores)
 
     # AND UPLOAD TO DB
-    # #upload_geography_data(region_scores, geography_data) #THIS UPLOADS DPLCIATES FUCK
+    # #upload_geography_data(geography_data) #THIS UPLOADS DPLCIATES FUCK
 
-    # #DRAW GRAPH
-    # run_graph()
-    # db.close_connection()
+    #DRAW GRAPH
+    run_graph()
+    db.close_connection()
     # try:
     #     print("Cleanup initiated...")
     #     delete_local_file(CACHE_FILENAME)
@@ -56,7 +56,7 @@ def main():
     # except FileNotFoundError:
     #     pass
 
-def upload_geography_data(region_scores, geography_data):
+def upload_geography_data(geography_data):
     dm = DM()
     db = DB()
     tables = db.get_col_names_not_id('geography', 4)
@@ -65,8 +65,8 @@ def upload_geography_data(region_scores, geography_data):
 
 
 def run_graph():
-    # ug = UG()
-    # ug.draw_undated_choropleth()
+    ug = UG()
+    ug.draw_undated_choropleth()
     dg = DG()
     dg.draw_dated_choropleth()
 

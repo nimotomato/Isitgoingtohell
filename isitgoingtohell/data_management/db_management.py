@@ -162,7 +162,7 @@ class DB():
         for x in raw_data:
             d = {}
             d['country_code'] = x[0]
-            d['dated_region_score'] = x[1]
+            d['score'] = x[1]
             d['date'] = x[2]
             d['region'] = x[3]
             data.append(d)
