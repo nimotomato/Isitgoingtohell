@@ -9,6 +9,15 @@ def load_csv(file_path):
     
     return data
 
+def tuple_to_dict(data: tuple, keywords: list) -> dict:
+    #WARNING: list of keywords must correspond to items in list.
+    x = 0
+    new_dict = {}
+    while x < len(keywords):
+        new_dict[keywords[x]] = data[x]
+        x += 1
+    return new_dict
+
 def write_csv(file_path, data: dict):
     with open(file_path, "w", newline='') as outfile:
    
@@ -20,7 +29,12 @@ def write_csv(file_path, data: dict):
         for row in data:
             writer.writerow(row.lower())
 
-        
+def dicts_to_tuples(data):
+    # Turn list of dicts into list of tuples
+    new_list = []
+    for x in data:
+        new_list.append(tuple(x.values()))
+    return new_list        
 
 def load_toml(file_path) -> dict:
     with open(file_path, "r") as f:

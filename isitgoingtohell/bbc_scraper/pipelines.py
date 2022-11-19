@@ -10,6 +10,7 @@ import psycopg2
 from isitgoingtohell.utils import load_toml
 from transformers import pipeline
 import numpy as np
+from isitgoingtohell.data_management.db_management import DB
 from scrapy.exceptions import DropItem
 
 
@@ -30,27 +31,23 @@ class DuplicatesPipeline:
             self.ids_seen.add(adapter['headline'])
             return item
 
-class IsocodePipeline:
-    def __init(self):
+class RegionPipeline:
+    def __init__(self):
         pass
 
     def process_item(self, item, spider):
-        if item['region'] == 'africa':
-            item['iso_code'] = 'AF'
-        elif item['region'] == 'europe':
-            item['iso_code'] = 'EU'
-        elif item['region'] == 'us_and_canada':
-            item['iso_code'] = 'NA'
+        if item['region'] == 'us_and_canada':
+            item['region'] = 'north america'
         elif item['region'] == 'middle_east':
-            item['iso_code'] = 'AS'
+            item['region'] = 'asia'
         elif item['region'] == 'australia':
-            item['iso_code'] = 'OC'
+            item['region'] = 'oceania'
         elif item['region'] == 'latin_america':
-            item['iso_code'] = 'SA'
-        elif item['region'] == 'asia':
-            item['iso_code'] = 'AS'
+            item['region'] = 'south america'
+
 
         return item
+
 
 class CompositePipeline:
     # This pipeline can do it all; connect to database, analyze data with sentiment analyzer and upload data. It is however very slow.

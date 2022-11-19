@@ -27,7 +27,7 @@ class BbcSpider(CrawlSpider):
            scraper_item = BbcScraperItem()
            if div.css('a h3::text'):
                 # Format text regarding quotation marks, assist in future SQL-queries
-                scraper_item['headline'] = div.css('a h3::text').get().replace("'", "''")
+                scraper_item['headline'] = div.css('a h3::text').get().replace("'", "")
                 # Make sure there is a timestamp. If not stamp of news, then stamp when scraped.
                 try:
                     scraper_item['date'] = div.css('time::attr(datetime)').get().split('T')[0]

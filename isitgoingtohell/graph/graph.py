@@ -1,4 +1,4 @@
-
+from isitgoingtohell.data_management.db_management import DB 
 from isitgoingtohell.data_management.data_analysis import Dated_methods as DM
 from isitgoingtohell.data_management.data_analysis import Undated_methods as UM
 from isitgoingtohell.utils import load_csv
@@ -9,17 +9,20 @@ class Graph():
     def __init__(self):
         self.dm = DM()
         self.um = UM()
+        self.db = DB()
         self.country_codes = load_csv("only_codes.csv")
+
+    def draw_choropleth(self, figure_settings):
+        fig = figure_settings
+        fig["layout"].pop("updatemenus")
+        fig.show()
 
 class Dated_graph(Graph):
     def __init__(self):
         super().__init__()
-        date_score_region = self.dm.to_dict(self.dm.calculate_ratio_dated(), not_null=True)
-        self.populated_regions = self.dm.populate_regions(self.country_codes, date_score_region)
-
-    def draw_choropleth(self):
-        fig = px.choropleth(
-            self.populated_regions, 
+        data = self.db.get_geography_data()
+        self.figure_settings = px.choropleth(
+            data, 
             locationmode="ISO-3", 
             locations="country_code",
             color="dated_region_score",
@@ -30,17 +33,16 @@ class Dated_graph(Graph):
             color_continuous_scale=px.colors.diverging.RdYlGn
             )
 
-        fig["layout"].pop("updatemenus")
-        fig.show()
+
+    def draw_dated_choropleth(self):
+        self.draw_choropleth(self.figure_settings)
 
 class Undated_graph(Graph):
     def __init__(self):
         super().__init__()
         region_scores = self.um.to_dict(self.um.calculate_ratio_total(), not_null=True)
         self.populated_regions = self.um.populate_regions(self.country_codes, region_scores)
-
-    def draw_choropleth(self):
-        fig = px.choropleth(
+        self.figure_settings = px.choropleth(
             self.populated_regions, 
             locationmode="ISO-3", 
             locations="country_code",
@@ -51,5 +53,5 @@ class Undated_graph(Graph):
             color_continuous_scale=px.colors.diverging.RdYlGn
             )
 
-        fig["layout"].pop("updatemenus")
-        fig.show()
+    def draw_undated_choropleth(self):
+        self.draw_choropleth(self.figure_settings)

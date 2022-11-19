@@ -1,21 +1,56 @@
 import pandas as pd
 from isitgoingtohell.data_management.db_management import DB
-from isitgoingtohell.data_management.settings import tablename,columns
-
+from isitgoingtohell.utils import load_csv, dicts_to_tuples
+from datetime import date
+REGIONS = [
+    'africa',
+    'asia',
+    'europe',
+    'oceania',
+    'north america',
+    'south america'
+    ]
+TABLENAME = 'data'
 
 class Data_Analysis:
     def __init__(self):
-        db = DB()
-        data = db.get_all_data(tablename=tablename)
-        self.df = pd.DataFrame(data, columns=columns)
+        self.db = DB()
+        # This data cannot be all data, change it to be data not uploaded into geography. 
+        data = self.db.get_analysed_data(tablename=TABLENAME)
+        columns = self.db.get_col_names_not_id(TABLENAME, 5)
+        data_columns = columns.split(",")
+        self.df = pd.DataFrame(data, columns=data_columns)
+        self.country_codes = load_csv("only_codes.csv")
 
+    def calculate_ratio(self, groupings: list) -> dict:
+            # Calculates ratio sorted by selected columns in the list.
+            ratio = (
+                self.df.replace('POSITIVE', 1)
+                .replace('NEGATIVE', 0)
+                .groupby(groupings)
+                .agg(sentiment_ratio=('label', 'mean'))
+            )
+            dict = ratio.to_dict()
+            return dict['sentiment_ratio']
+
+    def upload_populated_regions(self, columns, region_values):
+        query = f"INSERT INTO geography ({columns}) values "
+
+        new_list = dicts_to_tuples(region_values)
+
+        for data in new_list:
+            self.db.cur.execute(f"""{query} """ + str(data))
+            print(f"{query}" + str(data))
+
+        self.db.connection.commit()
+        
 class Dated_methods(Data_Analysis):      
     def __init__(self):
         super().__init__()
-
+        
     def calculate_ratio_dated(self):
         groupings=['region','date']
-        return self.calculate_ratio(groupings)
+        return self.to_dict(self.calculate_ratio(groupings))
 
     def to_dict(self, ratio, not_null=False):
         list = []
@@ -35,56 +70,34 @@ class Dated_methods(Data_Analysis):
                 list.append(item)
 
         return list
-
-    def calculate_ratio(self, groupings: list) -> dict:
-        # Calculates ratio sorted by selected columns in the list.
-        ratio = (
-            self.df.replace('POSITIVE', 1)
-            .replace('NEGATIVE', 0)
-            .replace('australia', 'oceania')
-            .replace('latin_america', 'south america')
-            .replace('us_and_canada', 'north america')
-            .replace('middle_east', 'asia')
-            .groupby(groupings)
-            .agg(sentiment_ratio=('label', 'mean'))
-            .sort_values(by=['date'])
-        )
-        dict = ratio.to_dict()
-        return dict['sentiment_ratio']
     
-    def populate_countries(self, country_codes, date_score_region, region):
+    def populate_countries(self, date_score_region, region):
         # Injects data for a region (date_score_region) into country codes within a region.
         # Needed for ISO-locations in graph 
         populated_countries = []
 
-        for country in country_codes:
+        for country in self.country_codes:
             if country['region'].lower() == region:
                 for score in date_score_region:
                     if score['region'] == region:
                         populated_country = {}
                         populated_country['country_code'] = country['code']
-                        populated_country['dated_region_score'] = score['score']
+                        populated_country['score'] = score['score']
                         populated_country['date'] = score['date']
                         populated_country['region'] = score['region']
                         populated_countries.append(populated_country)
         return populated_countries 
     
-    def populate_regions(self, country_codes, region_scores) -> list:
+    def populate_regions(self, region_scores, regions=REGIONS) -> list:
         # Runs populate_countries for all regions
-        regions = [
-        'africa',
-        'asia',
-        'europe',
-        'oceania',
-        'north america',
-        'south america'
-        ]
 
         populated_regions = []
         for region in regions:
-            populated_regions.extend(self.populate_countries(country_codes, region_scores, region))
+            populated_regions.extend(self.populate_countries(region_scores, region))
 
         return populated_regions
+
+
 
 class Undated_methods(Data_Analysis):
     def __init__(self):
@@ -92,7 +105,7 @@ class Undated_methods(Data_Analysis):
 
     def calculate_ratio_total(self):
         groupings=['region']
-        return self.calculate_ratio(groupings)
+        return self.to_dict(self.calculate_ratio(groupings))
 
     def to_dict(self, ratio, not_null=False):
         list = []
@@ -111,50 +124,52 @@ class Undated_methods(Data_Analysis):
 
         return list
 
-    def calculate_ratio(self, groupings: list) -> dict:
-        # Calculates ratio sorted by selected columns in the list.
-        ratio = (
-            self.df.replace('POSITIVE', 1)
-            .replace('NEGATIVE', 0)
-            .replace('australia', 'oceania')
-            .replace('latin_america', 'south america')
-            .replace('us_and_canada', 'north america')
-            .replace('middle_east', 'asia')
-            .groupby(groupings)
-            .agg(sentiment_ratio=('label', 'mean'))
-        )
-        dict = ratio.to_dict()
-        return dict['sentiment_ratio']
-
-    def populate_countries(self, country_codes, region_score, region):
+    def populate_countries(self, region_score, region):
         # Injects data for a region (date_score_region) into country codes within a region.
         # Needed for ISO-locations in graph 
         populated_countries = []
 
-        for country in country_codes:
+        for country in self.country_codes:
             if country['region'].lower() == region:
                 for score in region_score:
                     if score['region'] == region:
                         populated_country = {}
                         populated_country['country_code'] = country['code']
-                        populated_country['region_score'] = score['score']
+                        populated_country['score'] = score['score']
                         populated_country['region'] = score['region']
                         populated_countries.append(populated_country)
         return populated_countries 
 
-    def populate_regions(self, country_codes, region_scores) -> list:
+    def populate_regions(self, region_scores, regions=REGIONS) -> list:
         # Runs populate_countries for all regions
-        regions = [
-        'africa',
-        'asia',
-        'europe',
-        'oceania',
-        'north america',
-        'south america'
-        ]
+
 
         populated_regions = []
         for region in regions:
-            populated_regions.extend(self.populate_countries(country_codes, region_scores, region))
+            populated_regions.extend(self.populate_countries(region_scores, region))
 
         return populated_regions
+
+    def upload_geography_undated(self, columns):
+        query = f"INSERT INTO geography_undated ({columns}) values "
+        ratio = self.calculate_ratio_total()
+        calculation_date = str(date.today().isoformat())
+        df = pd.DataFrame(ratio,columns=['region', 'score'])
+        ratio = df.to_dict('records')
+        new_order = []
+        for item in ratio:
+            new_item = {}
+            new_item['region'] = item['region']
+            new_item['score'] = item['score']
+            new_item['calculation_date'] = calculation_date
+            new_item['number_of_labels'] = self.db.get_item_count('score', 'data', f"region = '{item['region']}'")[0]
+            new_order.append(new_item)
+
+        new_list = dicts_to_tuples(new_order)
+
+        for data in new_list:
+            self.db.cur.execute(f"""{query} """ + str(data))
+            print(f"{query}" + str(data))
+
+        self.db.connection.commit()
+        
