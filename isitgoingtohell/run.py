@@ -24,31 +24,37 @@ def main():
     data = load_json(CACHE_FILENAME)
 
     # UPLOAD TO DB
-    run_db(data)
+    run_db(data, db)
     
-    # LOAD DATA FROM DATABASE, OR JUST COMMENT OUT TO LOAD FROM FILE
-    scraped_data = db.get_unanalysed_data()
-    keys = db.get_col_names_not_id("data", 5).split(",")
-    data = [tuple_to_dict(item, keys) for item in scraped_data]
+    # # LOAD DATA FROM DATABASE, OR JUST COMMENT OUT TO LOAD FROM FILE
+    # scraped_data = db.get_unanalysed_data()
+    # keys = db.get_col_names_not_id("data", 5).split(",")
+    # data = [tuple_to_dict(item, keys) for item in scraped_data]
     
-    # AND ANALYZE DATA
-    analyzed_data = run_analyzer(data)
+    # # AND ANALYZE DATA
+    # analyzed_data = run_analyzer(data)
 
-    # UPLOAD TO DB
-    db.upload_analysed_data(analyzed_data)
+    # # UPLOAD TO DB
+    # db.upload_analysed_data(analyzed_data)
 
-    # CALCULATE SENTIMENT RATIO FOR DATA
-    region_scores = dm.calculate_ratio_dated()
+    # # CALCULATE SENTIMENT RATIO FOR DATA
+    # region_scores = dm.calculate_ratio_dated()
 
-    #EXTRACT DATA NEEDED FOR GRAPH 
-    geography_data = dm.populate_regions(region_scores)
+    # #EXTRACT DATA NEEDED FOR GRAPH 
+    # geography_data = dm.populate_regions(region_scores)
 
     # AND UPLOAD TO DB
-    #upload_geography_data(region_scores, geography_data) #THIS UPLOADS DPLCIATES FUCK
+    # #upload_geography_data(region_scores, geography_data) #THIS UPLOADS DPLCIATES FUCK
 
-    #DRAW GRAPH
-    run_graph()
-    db.close_connection()
+    # #DRAW GRAPH
+    # run_graph()
+    # db.close_connection()
+    # try:
+    #     print("Cleanup initiated...")
+    #     delete_local_file(CACHE_FILENAME)
+    #     print(f"{CACHE_FILENAME} deleted. ")
+    # except FileNotFoundError:
+    #     pass
 
 def upload_geography_data(region_scores, geography_data):
     dm = DM()
@@ -64,32 +70,23 @@ def run_graph():
     dg = DG()
     dg.draw_dated_choropleth()
 
-def run_db(data):
+def run_db(data, db):
     if data:
-        db = DB()
+        # We need number of columns for mogrification
         number_of_columns = len(data[0].keys())
-        print("checking data")
+
+        print("checking data for duplicates")
         data = db.remove_duplicates_batch(data)
+
         print("mogrifying data")
         data = db.mogrify_data(data, number_of_columns)
+
         if data:
             print("upload data")
             db.upload_data_postgres_mogrify(data, number_of_columns)
         else:
             print("No data to upload")
-            try:
-                print("Cleanup initiated...")
-                delete_local_file(CACHE_FILENAME)
-                print(f"{CACHE_FILENAME} deleted. ")
-            except FileNotFoundError:
-                pass
-    else:
-        print('No new items to upload. ')
-        try:
-            print("Cleanup initiated...")
-            delete_local_file(CACHE_FILENAME)
-        except FileNotFoundError:
-            pass
+
 
 def run_analyzer(data) -> list:
     anal = sentiment_analysis.Analyzer()
@@ -101,7 +98,8 @@ def run_spider(CACHE_FILENAME):
         'FEED_URI': CACHE_FILENAME,
         'ITEM_PIPELINES': {
     'isitgoingtohell.bbc_scraper.pipelines.DuplicatesPipeline': 200,
-    'isitgoingtohell.bbc_scraper.pipelines.RegionPipeline': 30
+    #MAYBE THIS SHOULD BE LESS THAN 200
+    'isitgoingtohell.bbc_scraper.pipelines.RegionPipeline': 300
     }}
     )
     process.crawl(BbcSpider)
