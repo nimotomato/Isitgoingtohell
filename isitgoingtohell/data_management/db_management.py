@@ -4,6 +4,7 @@ import os
 import pandas as pd
 from psycopg2 import errors
 from psycopg2.errorcodes import UNIQUE_VIOLATION
+from datetime import date
 
 TABLENAME = 'data'
 class DB():
@@ -135,26 +136,6 @@ class DB():
         if self.cur.fetchone():
             return True
         return False
-
-    # def verify_data(self, filename="cache.json", tablename="data"):
-    #     # Verify all data from local file has been uploaded to database. Scales poorly, gets all data every time.
-    #     self.cur.execute(f""" select headline from {tablename} """)
-
-    #     bool = True
-    #     error_counter = 0
-
-    #     all_headlines = [text[0] for text in self.cur.fetchall()]
-
-    #     # Compare data in local file to data in database. Count errors.
-    #     for row in filename:
-    #         if row['headline'] not in all_headlines:
-    #             print(f"Item text: {row['headline']} was not found in {tablename}")
-    #             bool = False
-    #             error_counter += 1
-
-    #     print(f"Data verification completed. {str(error_counter)} errors encountered. ")
-
-    #     return bool
         
     def get_geography_data(self):
         raw_data = self.get_all_data("geography")
@@ -189,6 +170,40 @@ class DB():
         query=f"SELECT headline,date,region,label,score FROM {tablename} WHERE label is not Null"
         self.cur.execute(query)
         return self.cur.fetchall()
+
+    def upload_geography_undated(self, columns):
+        query = f"INSERT INTO geography_undated ({columns}) values "
+        ratio = self.calculate_ratio_total()
+        calculation_date = str(date.today().isoformat())
+        df = pd.DataFrame(ratio,columns=['region', 'score'])
+        ratio = df.to_dict('records')
+        new_order = []
+        for item in ratio:
+            new_item = {}
+            new_item['region'] = item['region']
+            new_item['score'] = item['score']
+            new_item['calculation_date'] = calculation_date
+            new_item['number_of_labels'] = self.get_item_count('score', 'data', f"region = '{item['region']}'")[0]
+            new_order.append(new_item)
+
+        new_list = dicts_to_tuples(new_order)
+
+        for data in new_list:
+            self.cur.execute(f"""{query} """ + str(data))
+            print(f"{query}" + str(data))
+
+        self.connection.commit()
+
+    def upload_populated_regions(self, columns, region_values):
+        query = f"INSERT INTO geography ({columns}) values "
+
+        new_list = dicts_to_tuples(region_values)
+
+        for data in new_list:
+            self.cur.execute(f"""{query} """ + str(data))
+            print(f"{query}" + str(data))
+
+        self.connection.commit()
 
     def close_connection(self, message=True):
         self.cur.close()

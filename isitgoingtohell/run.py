@@ -44,7 +44,7 @@ def main():
     # geography_data = dm.populate_regions(region_scores)
 
     # AND UPLOAD TO DB
-    # #upload_geography_data(geography_data) #THIS UPLOADS DPLCIATES FUCK
+    # upload_geography_data(geography_data) #THIS UPLOADS DPLCIATES FUCK
 
     #DRAW GRAPH
     run_graph()
@@ -57,10 +57,9 @@ def main():
     #     pass
 
 def upload_geography_data(geography_data):
-    dm = DM()
     db = DB()
-    tables = db.get_col_names_not_id('geography', 4)
-    dm.upload_populated_regions(tables, geography_data)
+    columns = db.get_col_names_not_id('geography', 4)
+    db.upload_populated_regions(columns, geography_data)
     db.close_connection()
 
 

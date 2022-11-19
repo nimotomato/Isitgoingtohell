@@ -32,17 +32,6 @@ class Data_Analysis:
             )
             dict = ratio.to_dict()
             return dict['sentiment_ratio']
-
-    def upload_populated_regions(self, columns, region_values):
-        query = f"INSERT INTO geography ({columns}) values "
-
-        new_list = dicts_to_tuples(region_values)
-
-        for data in new_list:
-            self.db.cur.execute(f"""{query} """ + str(data))
-            print(f"{query}" + str(data))
-
-        self.db.connection.commit()
         
 class Dated_methods(Data_Analysis):      
     def __init__(self):
@@ -147,27 +136,3 @@ class Undated_methods(Data_Analysis):
             populated_regions.extend(self.populate_countries(region_scores, region))
 
         return populated_regions
-
-    def upload_geography_undated(self, columns):
-        query = f"INSERT INTO geography_undated ({columns}) values "
-        ratio = self.calculate_ratio_total()
-        calculation_date = str(date.today().isoformat())
-        df = pd.DataFrame(ratio,columns=['region', 'score'])
-        ratio = df.to_dict('records')
-        new_order = []
-        for item in ratio:
-            new_item = {}
-            new_item['region'] = item['region']
-            new_item['score'] = item['score']
-            new_item['calculation_date'] = calculation_date
-            new_item['number_of_labels'] = self.db.get_item_count('score', 'data', f"region = '{item['region']}'")[0]
-            new_order.append(new_item)
-
-        new_list = dicts_to_tuples(new_order)
-
-        for data in new_list:
-            self.db.cur.execute(f"""{query} """ + str(data))
-            print(f"{query}" + str(data))
-
-        self.db.connection.commit()
-        
