@@ -9,6 +9,17 @@ def load_csv(file_path):
     
     return data
 
+def number_of_keys(data: dict) -> int:
+        return len(data[0].keys())
+
+def list_tuple_to_dict(data: list[tuple], keywords: list) -> dict:
+    dict_list = []
+
+    for item in data:
+        dict_list.append(tuple_to_dict(item, keywords))
+        
+    return dict_list
+
 def tuple_to_dict(data: tuple, keywords: list) -> dict:
     #WARNING: list of keywords must correspond to items in list.
     x = 0
@@ -17,6 +28,12 @@ def tuple_to_dict(data: tuple, keywords: list) -> dict:
         new_dict[keywords[x]] = data[x]
         x += 1
     return new_dict
+
+def stringify_list(data: list)-> str:
+    return ",".join(data)
+
+def fetchall_to_list(fetchall_data: list[tuple]) -> list:
+    return [i[0] for i in fetchall_data]
 
 def write_csv(file_path, data: dict):
     with open(file_path, "w", newline='') as outfile:

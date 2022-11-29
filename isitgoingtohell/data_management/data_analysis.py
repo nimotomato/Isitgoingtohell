@@ -1,7 +1,9 @@
 import pandas as pd
 from isitgoingtohell.data_management.db_management import DB
+from isitgoingtohell.data_management import db_management2 as DB2
 from isitgoingtohell.utils import load_csv, dicts_to_tuples
 from datetime import date
+
 REGIONS = [
     'africa',
     'asia',
@@ -33,6 +35,7 @@ class Data_Analysis:
             dict = ratio.to_dict()
             return dict['sentiment_ratio']
         
+
 class Dated_methods(Data_Analysis):      
     def __init__(self):
         super().__init__()
@@ -85,7 +88,6 @@ class Dated_methods(Data_Analysis):
             populated_regions.extend(self.populate_countries(region_scores, region))
 
         return populated_regions
-
 
 
 class Undated_methods(Data_Analysis):

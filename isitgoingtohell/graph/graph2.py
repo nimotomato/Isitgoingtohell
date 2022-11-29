@@ -1,7 +1,6 @@
-from isitgoingtohell.data_management.db_management import DB 
-from isitgoingtohell.data_management.data_analysis import Dated_methods as DM
-from isitgoingtohell.data_management.data_analysis import Undated_methods as UM
-from isitgoingtohell.utils import load_csv, number_of_keys
+from isitgoingtohell.data_management.data_analysis2 import Dated_methods as DM
+from isitgoingtohell.data_management.data_analysis2 import Undated_methods as UM
+from isitgoingtohell.utils import load_csv
 import plotly.express as px
 import pandas as pd
 
@@ -10,7 +9,6 @@ class Graph():
     def __init__(self):
         self.dm = DM()
         self.um = UM()
-        self.db = DB()
         self.country_codes = load_csv("only_codes.csv")
 
     def draw_choropleth(self, figure_settings):
@@ -20,17 +18,18 @@ class Graph():
 
 
 class Dated_graph(Graph):
-    def __init__(self):
+    def __init__(self, geography_data, column_names):
         super().__init__()
-        # Get data from database
-        geography_data = self.db.get_geography_data()
-        columns = self.db.get_col_names_not_id('geography', number_of_keys(geography_data)).split(",")
-        
-        # Sort data
-        df = pd.DataFrame(geography_data, columns=columns).sort_values(by = 'date')
+        # Get data
+        self.geography_data = geography_data
+        self.column_names = column_names
 
+    def sort_geography_pandas(self, geography_data:list[dict], column_names: list):
+        return pd.DataFrame(geography_data, columns=column_names).sort_values(by = 'date')
+
+    def set_choropleth_settings(self, df):
         # Set data into settings
-        self.figure_settings = px.choropleth(
+        figure_settings = px.choropleth(
             df, 
             locationmode="ISO-3", 
             locations="country_code",
@@ -41,16 +40,21 @@ class Dated_graph(Graph):
             range_color=[0.2, 1.2],
             color_continuous_scale=px.colors.diverging.RdYlGn
             )
+        
+        return figure_settings
 
     def draw_dated_choropleth(self):
-        self.draw_choropleth(self.figure_settings)
+        dataframe = self.sort_geography_pandas(self.geography_data, self.column_names)
+        settings = self.set_choropleth_settings(dataframe)
+        self.draw_choropleth(settings)
 
 
 class Undated_graph(Graph):
-    def __init__(self):
+    def __init__(self, database_object):
         super().__init__()
-        region_scores = self.um.calculate_ratio_total()
-        self.populated_regions = self.um.populate_regions(region_scores)
+        self.db = database_object
+        region_scores = self.um.calculate_ratio()
+        self.populated_regions = self.um.sort_all_regions(region_scores)
         self.figure_settings = px.choropleth(
             self.populated_regions, 
             locationmode='ISO-3', 
@@ -63,4 +67,5 @@ class Undated_graph(Graph):
             )
 
     def draw_undated_choropleth(self):
+        # Draws map from data in database
         self.draw_choropleth(self.figure_settings)

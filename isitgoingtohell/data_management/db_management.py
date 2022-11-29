@@ -1,5 +1,5 @@
 import psycopg2
-from isitgoingtohell.utils import load_json, dicts_to_tuples, tuple_to_dict
+from isitgoingtohell.utils import load_json, dicts_to_tuples, tuple_to_dict, number_of_keys
 import os
 import pandas as pd
 from psycopg2 import errors
@@ -19,11 +19,34 @@ class DB():
         
         # Create cursor, used to execute commands
         self.cur = self.connection.cursor()
-    
+
     def get_item_count(self, column, table, condition):
         query = f"SELECT COUNT({column}) FROM {table} WHERE {condition}"
         self.cur.execute(f"""{query} """)
         return self.cur.fetchone()
+
+    def upload_geography_undated(self, ud, columns):
+        query = f"INSERT INTO geography_undated ({columns}) values "
+        ratio = ud.calculate_ratio_total()
+        calculation_date = str(date.today().isoformat())
+        df = pd.DataFrame(ratio,columns=['region', 'score'])
+        ratio = df.to_dict('records')
+        new_order = []
+        for item in ratio:
+            new_item = {}
+            new_item['region'] = item['region']
+            new_item['score'] = item['score']
+            new_item['calculation_date'] = calculation_date
+            new_item['number_of_labels'] = self.get_item_count('score', 'data', f"region = '{item['region']}'")[0]
+            new_order.append(new_item)
+
+        new_list = dicts_to_tuples(new_order)
+
+        for data in new_list:
+            self.cur.execute(f"""{query} """ + str(data))
+            print(f"{query}" + str(data))
+
+        self.connection.commit()
 
     def upload_data_postgres_mogrify(self, mogrified_data, number_of_columns: int, tablename=TABLENAME):
         # Insert the goodies to db. Cannot deal with duplicate data...
@@ -150,7 +173,7 @@ class DB():
         return data
 
     def get_geography_data_undated(self):
-        raw_data = self.get_all_data("geograpy_undated")
+        raw_data = self.get_all_data("geography_undated")
         data = []
         for x in raw_data:
             d = {}
