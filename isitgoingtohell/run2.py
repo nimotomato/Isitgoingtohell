@@ -48,12 +48,12 @@ def main():
 
 
     # Retrieve geo data 
-    data = db.get_geography_data()
-    column_names = db.get_column_names('geography')
+    data = db.get_geography_data(dated=True)
+    column_names = db.get_column_names(tablename='geography')
     dated_graph = Dated_graph(data, column_names)
 
     # Show graph
-    show_graph(dated_graph, db, dated=True)
+    show_graph(dated_graph, dated=True)
 
     # try:
     #     db.close_connection()
@@ -67,11 +67,9 @@ def main():
     #     pass
 
 
-def show_graph(graph_object, database_object, dated=False):
+def show_graph(graph_object, dated=True):
     if dated:
-        data = database_object.get_geography_data(dated=True)
-        column_names = data[0].keys()
-        database_object.draw_dated_choropleth()
+        graph_object.draw_dated_choropleth()
     else:
         pass
 

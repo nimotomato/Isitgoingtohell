@@ -23,9 +23,7 @@ class Dated_graph(Graph):
         # Get data
         self.geography_data = geography_data
         self.column_names = column_names
-
-    def sort_geography_pandas(self, geography_data:list[dict], column_names: list):
-        return pd.DataFrame(geography_data, columns=column_names).sort_values(by = 'date')
+        self.dataframe = pd.DataFrame(geography_data, columns=column_names).sort_values(by = 'date')
 
     def set_choropleth_settings(self, df):
         # Set data into settings
@@ -44,8 +42,7 @@ class Dated_graph(Graph):
         return figure_settings
 
     def draw_dated_choropleth(self):
-        dataframe = self.sort_geography_pandas(self.geography_data, self.column_names)
-        settings = self.set_choropleth_settings(dataframe)
+        settings = self.set_choropleth_settings(self.dataframe)
         self.draw_choropleth(settings)
 
 
