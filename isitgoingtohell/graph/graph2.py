@@ -38,7 +38,6 @@ class Dated_graph(Graph):
             range_color=[0.2, 1.2],
             color_continuous_scale=px.colors.diverging.RdYlGn
             )
-        
         return figure_settings
 
     def draw_dated_choropleth(self):
@@ -64,7 +63,6 @@ class Undated_graph(Graph):
             )
         return figure_settings
         
-
     def draw_undated_choropleth(self):
         # Draws map from data in database
         settings = self.set_choropleth_settings(self.data)

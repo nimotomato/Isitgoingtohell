@@ -11,7 +11,7 @@ class Analyser():
         # set up sentiment analysis model
         self.sentiment_analyser = pipeline(model=config["sentiment_analysis"]["model"])
 
-    def analyze_data(self, raw_data):
+    def analyze_data(self, raw_data) -> list[dict]:
         # Analyses a list of dicts
         analyzed_data = []
         for scraped_data_nugget in raw_data:
@@ -22,10 +22,6 @@ class Analyser():
                     analyzed_data.append(self.clean_data_nuggets(scraped_data_nugget, analyzed_data_nugget))
 
         return analyzed_data
-
-    def get_headlines(self):
-        db = DB()
-        return db.get_col_data('data', 'headline', outbound=True)
 
     def clean_data_nuggets(self, scraped_data_nugget, analyzed_data_nugget):
         # Necessary for analyze_json method.
