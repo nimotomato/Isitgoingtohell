@@ -1,9 +1,10 @@
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.utils import load_json, delete_local_file, tuple_to_dict, number_of_keys, stringify_list
 from scrapy.crawler import CrawlerProcess
-from isitgoingtohell.sentiment_analyzer.sentiment_analysis import Analyser
+from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
 from isitgoingtohell.data_management.db_management2 import Database as DB
-from isitgoingtohell.graph.graph2 import Dated_graph
+from isitgoingtohell.graph.graph2 import Dated_graph as DG
+from isitgoingtohell.graph.graph2 import Undated_graph as UG
 import os
 import pandas as pd
 from sys import argv
@@ -43,17 +44,14 @@ def main():
 
     # # Upload analysed data
     # upload_analysed_data(analysed_data, db)
-    # ug = UG()
-    # graph_calculations(ug)
 
+    # # Retrieve geo data from database
+    # dated_data = db.get_geography_data(dated=True)
+    # undated_data = db.get_geography_data(dated=False)
+    # # Show graph
+    # show_graph(dated_data, database_object=db, dated=True)
+    # show_graph(undated_data, dated=False)
 
-    # Retrieve geo data 
-    data = db.get_geography_data(dated=True)
-    column_names = db.get_column_names(tablename='geography')
-    dated_graph = Dated_graph(data, column_names)
-
-    # Show graph
-    show_graph(dated_graph, dated=True)
 
     # try:
     #     db.close_connection()
@@ -67,11 +65,14 @@ def main():
     #     pass
 
 
-def show_graph(graph_object, dated=True):
+def show_graph(data, database_object=None, dated=True):
     if dated:
-        graph_object.draw_dated_choropleth()
+        column_names = database_object.get_column_names(tablename='geography')
+        dg = DG(data, column_names)
+        dg.draw_dated_choropleth()
     else:
-        pass
+        ug = UG(data)
+        ug.draw_undated_choropleth()
 
 def sentiment_analysis(db, from_local=False, local_data_path=CACHE_FILENAME) -> list[dict]:
     if from_local:
@@ -98,7 +99,6 @@ def upload_scraped_data(raw_data, db):
 def upload_analysed_data(analysed_data, db):
     print("uploading analysed data")
     db.upload_analysed_data(analysed_data)
-
 
 def run_spider(CACHE_FILENAME):
     process = CrawlerProcess(settings={'FEED_FORMAT': 'json',

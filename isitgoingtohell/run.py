@@ -1,7 +1,7 @@
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.utils import load_json, delete_local_file, tuple_to_dict, number_of_keys
 from scrapy.crawler import CrawlerProcess
-from isitgoingtohell.sentiment_analyzer import sentiment_analysis
+from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
 from isitgoingtohell.data_management.db_management import DB
 from isitgoingtohell.data_management.data_analysis import Dated_methods as DM
 import os

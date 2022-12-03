@@ -23,7 +23,8 @@ class Load_data():
         columns_string = stringify_list(columns_list)
         condition = 'WHERE label is not Null'
         unanalysed_data = db.get_data(columns_names=columns_string, condition=condition)
-
+        db.close_connection(message=False)
+        
         # Set up dataframe.
         self.df = pd.DataFrame(unanalysed_data, columns=columns_list)
 
@@ -47,29 +48,34 @@ class General_methods(Load_data):
         dict = ratio.to_dict()
         return dict['sentiment_ratio']
     
-    def sort_ratio_scores(ratio_scores, date=False, not_null=False):
+    def sort_ratio_scores(self, ratio_scores, dated, not_null=False):
     # Sorts output from calculate_ratio into a dictionary we can use. 
         list = []
         for i, j in ratio_scores.items():
             if not_null:
                 if j != 0:
                     item={}
-                    item['region'] = i[0]
-                    if date:
+                    if dated:
                         item['date'] = i[1]
+                        item['region'] = i[0]
+                    else:
+                        item['region'] = i
                     item['score'] = j
                     list.append(item)
             else:
                 item={}
                 item['region'] = i[0]
-                if date:
+                if dated:
                     item['date'] = i[1]
+                    item['region'] = i[0]
+                else:
+                    item['region'] = i
                 item['score'] = j
                 list.append(item)
 
         return list
 
-    def sort_by_country_code(self, sorted_scores, region, date=False):
+    def sort_by_country_code(self, sorted_scores, region, dated=False):
         # Spreads data from specified region to each country code within region.
         sorted_data = []
 
@@ -77,13 +83,13 @@ class General_methods(Load_data):
             if country['region'].lower() == region:
                 for score in sorted_scores:
                     if score['region'] == region:
-                        country = {}
-                        country['country_code'] = country['code']
-                        country['score'] = score['score']
-                        if date:
-                            country['date'] = score['date']
-                        country['region'] = score['region']
-                        sorted_data.append(country)
+                        item = {}
+                        item['country_code'] = country['code']
+                        item['score'] = score['score']
+                        if dated:
+                            item['date'] = score['date']
+                        item['region'] = score['region']
+                        sorted_data.append(item)
 
         return sorted_data 
 
@@ -96,14 +102,16 @@ class Dated_methods(General_methods):
         # Returns a list of dict data sorted by region and date.
         groupings = ['region','date']
         ratio_scores = self.calculate_ratio_scores(groupings)
+        return ratio_scores
 
-        return self.sort_ratio_scores(ratio_scores, date=True)
+    def pre_sort_scores_dated(self, ratio):
+        return self.sort_ratio_scores(ratio, dated=True)
 
-    def sort_all_regions_dated(self, ratio_scores_dated, regions=REGIONS) -> list:
+    def sort_all_regions_dated(self, presorted_scores_dated, regions=REGIONS) -> list:
         # Sorts scores for all regions.
         populated_regions = []
         for region in regions:
-            populated_regions.extend(self.sort_by_country_code(ratio_scores_dated, region, date=True))
+            populated_regions.extend(self.sort_by_country_code(presorted_scores_dated, region, dated=True))
 
         return populated_regions
 
@@ -112,22 +120,24 @@ class Undated_methods(General_methods):
     def __init__(self):
         super().__init__()
 
-    def calculate_ratio(self)->dict:
+    def calculate_ratio_undated(self)->dict:
         # Returns a dict of data sorted by region.
         groupings = ['region']
-        ratio_scores = self.calculate_ratio_scores(groupings)
+        return self.calculate_ratio_scores(groupings)
 
-        return self.sort_ratio_scores(ratio_scores, date=False)
+    def pre_sort_scores_undated(self, ratio):
+        return self.sort_ratio_scores(ratio, dated=False)
 
-    def sort_all_regions(self, ratio_scores, regions=REGIONS) -> list:
-        # Sorts scores for all regions.
+    def map_all_regions_undated(self, ratio_scores, regions=REGIONS) -> list:
+        # Maps regional scores to all countries. 
         populated_regions = []
         for region in regions:
             populated_regions.extend(self.sort_by_country_code(ratio_scores, region))
 
         return populated_regions
 
-    def sort_geography_data(self, data: list[dict]) -> str:
+    def add_metadata(self, data: list[dict]) -> list[dict]:
+        # This contains final data for upload and goes into DB.sort_geo_data
         calculation_date = str(date.today().isoformat())
         new_order = []
         for item in data:

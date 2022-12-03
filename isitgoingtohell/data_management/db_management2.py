@@ -8,6 +8,8 @@ from datetime import date
 from isitgoingtohell import utils
 
 TABLENAME = 'data'
+UNDATED_TABLE = 'geography_undated'
+DATED_TABLE = 'geography'
 
 class Database():
 # Manage Connection
@@ -78,11 +80,12 @@ class Database():
 
     def get_geography_data(self, dated=False):
         if dated:
-            tablename = 'geography'
+            tablename = DATED_TABLE
         else:
-            tablename = 'geography_undated'
+            tablename = UNDATED_TABLE
 
         geo_data = self.get_data(tablename=tablename)
+        # Sorts data to fit for uploading
         sorted_geo_data = self.sort_geo_data(geo_data, dated=dated)
 
         return sorted_geo_data
@@ -138,9 +141,9 @@ class Database():
 
     def upload_geography_data(self, mogrified_data: str, dated=False):
         if dated:
-            tablename='geography'
+            tablename = Database
         else:
-            tablename='geography_undated'
+            tablename = UNDATED_TABLE
         number_of_columns = self.get_column_count(tablename=tablename)
         self.insert_batch(mogrified_data, number_of_columns=number_of_columns, tablename=tablename)
         self.connection.commit()
@@ -206,10 +209,9 @@ class Database():
                 new_order['date'] = item[2]
                 new_order['region'] = item[3]
             else:
-                new_order['country_code'] = item[0]
-                new_order['region'] = item[1]
-                new_order['score'] = item[2]
-                new_order['calculation_date'] = item[3]
-                new_order['number_of_labels'] = item[4]
+                new_order['region'] = item[0]
+                new_order['score'] = item[1]
+                new_order['calculation_date'] = item[2]
+                new_order['number_of_labels'] = item[3]
             data.append(new_order)
         return data
