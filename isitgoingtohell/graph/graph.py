@@ -17,12 +17,13 @@ class Graph():
         fig.show()
 
 
+
 class Dated_graph(Graph):
     def __init__(self, geography_data, column_names):
         super().__init__()
-        # Get data, remember to get geography data from most recent dates.
-        self.geography_data = geography_data
-        self.column_names = column_names
+        # Get data
+        self.geography_data = self.dm.map_all_regions_dated(geography_data)
+        self.column_names = geography_data[0].keys()
         self.dataframe = pd.DataFrame(geography_data, columns=column_names).sort_values(by = 'date')
 
     def set_choropleth_settings(self, df):
@@ -48,7 +49,7 @@ class Dated_graph(Graph):
 class Undated_graph(Graph):
     def __init__(self, geography_data_undated):
         super().__init__()
-        self.data = self.um.map_all_regions_undated(geography_data_undated)
+        self.geography_data = self.um.map_all_regions_undated(geography_data_undated)
 
     def set_choropleth_settings(self, mapped_geography_data):
         figure_settings = px.choropleth(
@@ -65,5 +66,5 @@ class Undated_graph(Graph):
         
     def draw_undated_choropleth(self):
         # Draws map from data in database
-        settings = self.set_choropleth_settings(self.data)
+        settings = self.set_choropleth_settings(self.geography_data)
         self.draw_choropleth(settings)

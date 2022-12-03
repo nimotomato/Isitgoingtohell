@@ -73,17 +73,14 @@ class Database():
         data_tuples = self.get_data(column_string, tablename, condition)
         return list_tuple_to_dict(data_tuples, column_names)
 
-    def get_geography_data(self, dated=False, condition=""):
+    def get_graph_data(self, dated=False, condition=""):
         if dated:
             tablename = DATED_TABLE
         else:
             tablename = UNDATED_TABLE
 
         geo_data = self.get_data(tablename=tablename, condition=condition)
-        # Sorts data to fit for uploading
-        sorted_geo_data = self.sort_geo_data_for_database(geo_data, dated=dated)
-
-        return sorted_geo_data
+        return self.pre_graph_sort(geography_data=geo_data, dated=dated)
 
 #Upload data
     def insert_data(self, data: str, tablename=TABLENAME, columns_names='*', condition=''):
@@ -95,7 +92,6 @@ class Database():
     def insert_batch(self, mogrified_data: str, column_names: list, tablename=TABLENAME):
         # WARNING: Cannot deal with duplicate data.
         columns_string = ",".join(column_names)
- 
         self.insert_data(mogrified_data, tablename, columns_string)
 
         self.connection.commit()
@@ -193,3 +189,22 @@ class Database():
         dict_keys = data.keys()
         ordered_keys = [key for key in dict_keys if key in columns]
         return ordered_keys
+
+    def pre_graph_sort(self, geography_data: list[tuple], dated: bool) -> list[dict]:
+        sorted_data = []
+        for item in geography_data:
+            if dated:
+                temp_dict={}
+                temp_dict['score'] = item[0]
+                temp_dict['date'] = item[1]
+                temp_dict['region'] = item[2]
+                sorted_data.append(temp_dict)
+            else:
+                temp_dict={}
+                temp_dict['region'] = item[0]
+                temp_dict['score'] = item[1]
+                temp_dict['calculation_date'] = item[2]
+                temp_dict['number_of_labels'] = item[3]
+                sorted_data.append(temp_dict)
+
+        return sorted_data

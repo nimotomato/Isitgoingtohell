@@ -1,5 +1,4 @@
 from isitgoingtohell.utils import load_toml
-from isitgoingtohell.data_management.db_management import DB
 from transformers import pipeline
 import numpy as np
 

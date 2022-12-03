@@ -48,29 +48,29 @@ class General_methods(Load_data):
         dict = ratio.to_dict()
         return dict['sentiment_ratio']
     
-    def sort_ratio_scores(self, ratio_scores, dated, not_null=False):
+    def sort_ratio_scores(self, ratio_scores, dated: bool, not_null=False):
     # Sorts output from calculate_ratio into a dictionary we can use. 
         list = []
         for i, j in ratio_scores.items():
             if not_null:
                 if j != 0:
                     item={}
+                    item['score'] = j
                     if dated:
                         item['date'] = i[1]
                         item['region'] = i[0]
                     else:
                         item['region'] = i
-                    item['score'] = j
                     list.append(item)
             else:
                 item={}
-                item['region'] = i[0]
+                item['score'] = j
                 if dated:
                     item['date'] = i[1]
                     item['region'] = i[0]
                 else:
                     item['region'] = i
-                item['score'] = j
+
                 list.append(item)
 
         return list
