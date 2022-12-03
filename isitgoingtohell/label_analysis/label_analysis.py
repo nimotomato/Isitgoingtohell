@@ -1,6 +1,6 @@
 import pandas as pd
-from isitgoingtohell.data_management.db_management2 import Database as DB
-from isitgoingtohell.utils import load_csv, dicts_to_tuples, stringify_list
+from isitgoingtohell.data_management.db_management import Database as DB
+from isitgoingtohell.utils import load_csv, stringify_list
 from datetime import date
 
 REGIONS = [
@@ -22,11 +22,11 @@ class Load_data():
         # Get data that has not yet been analysed.
         columns_string = stringify_list(columns_list)
         condition = 'WHERE label is not Null'
-        unanalysed_data = db.get_data(columns_names=columns_string, condition=condition)
+        sentiment_data = db.get_data(columns_names=columns_string, condition=condition)
         db.close_connection(message=False)
         
         # Set up dataframe.
-        self.df = pd.DataFrame(unanalysed_data, columns=columns_list)
+        self.df = pd.DataFrame(sentiment_data, columns=columns_list)
 
         # Load list of country codes corresponding to region.
         self.country_codes = load_csv("only_codes.csv")
@@ -107,7 +107,7 @@ class Dated_methods(General_methods):
     def pre_sort_scores_dated(self, ratio):
         return self.sort_ratio_scores(ratio, dated=True)
 
-    def sort_all_regions_dated(self, presorted_scores_dated, regions=REGIONS) -> list:
+    def map_all_regions_dated(self, presorted_scores_dated, regions=REGIONS) -> list:
         # Sorts scores for all regions.
         populated_regions = []
         for region in regions:
@@ -137,16 +137,18 @@ class Undated_methods(General_methods):
 
         return populated_regions
 
-    def add_metadata(self, data: list[dict]) -> list[dict]:
-        # This contains final data for upload and goes into DB.sort_geo_data
+    def add_metadata(self, data: list[dict], database_object) -> list[dict]:
+        # This contains final data for upload.
         calculation_date = str(date.today().isoformat())
+
         new_order = []
         for item in data:
             new_item = {}
             new_item['region'] = item['region']
             new_item['score'] = item['score']
             new_item['calculation_date'] = calculation_date
-            new_item['number_of_labels'] = len(data)
+            condition =  f"WHERE region = '{item['region']}'"
+            new_item['number_of_labels'] = database_object.get_item_count('score', tablename=TABLENAME, condition=condition)[0]
             new_order.append(new_item)
         
         return new_order

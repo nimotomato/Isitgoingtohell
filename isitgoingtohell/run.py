@@ -1,94 +1,59 @@
 from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
-from isitgoingtohell.utils import load_json, delete_local_file, tuple_to_dict, number_of_keys
+from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
-from isitgoingtohell.data_management.db_management import DB
-from isitgoingtohell.data_management.data_analysis import Dated_methods as DM
-import os
-import pandas as pd
+from isitgoingtohell.data_management.db_management import Database as DB
 from isitgoingtohell.graph.graph import Dated_graph as DG
 from isitgoingtohell.graph.graph import Undated_graph as UG
-from sys import argv
+from isitgoingtohell.label_analysis.label_analysis import Dated_methods
+from isitgoingtohell.label_analysis.label_analysis import Undated_methods 
+import os
 
 CACHE_FILENAME = 'cache.json'
-COMMAND_LIST = [
-    '-full_script',
-    '-scraper',
-    '-scraper-upload',
-    '-sentiment_from_file',
-    '-sentiment_from_file-upload',
-    '-sentiment_from_db',
-    '-dated_graph',
-    '-undated_graph',
-    '-sentiment_from_db-upload',
-    '-calculate_graph_data-upload'
-    ]
-
 
 def main():    
-    main_input = argv[1:]
-    if not validate_args(main_input):
-        print("Usage: ")
-        for command in COMMAND_LIST:
-            print(command)
-        exit()
+    # SCRAPE DATA
+    db = DB()
+    if os.path.exists(CACHE_FILENAME):
+        delete_local_file(CACHE_FILENAME)
+    # Initiate webscraper
+    run_spider(CACHE_FILENAME)
 
-    if '-full_script' in main_input:
-        main_input = " ".join(COMMAND_LIST[1:])
+    # Store scraper output locally
+    raw_data = load_json(CACHE_FILENAME)
 
-    if '-scraper' in main_input:
-        # SCRAPE DATA
-        if os.path.exists(CACHE_FILENAME):
-            delete_local_file(CACHE_FILENAME)
-        # Initiate webscraper
-        run_spider(CACHE_FILENAME)
-        if '-scraper-upload' in main_input:
-            db = DB()
-            run_db(load_json(CACHE_FILENAME), db)
+    # Upload local files
+    db = DB()
+    # upload_scraped_data(raw_data, db)
 
-    if '-sentiment_from_file' in main_input:
-        # LOAD SCRAPED DATA
-        data = load_json(CACHE_FILENAME)
-        # ANALYZE DATA
-        analyzed_data = run_analyzer(data)
-        if '-sentiment_from_file-upload' in main_input:
-            db = DB()
-            # UPLOAD TO DB
-            run_db(analyzed_data, db)
-            db.close_connection()
+    # Sentiment analysis from file or from database
+    analysed_data = sentiment_analysis(db, from_local=True)
 
-    if '-sentiment_from_db' in main_input:
-        db = DB()
-        # LOAD DATA FROM DATABASE
-        scraped_data = db.get_unanalysed_data()
-        keys = db.get_col_names_not_id("data", 5).split(",")
-        data = [tuple_to_dict(item, keys) for item in scraped_data]
-        analyzed_data = run_analyzer(data)
-        if '-sentiment_from_db-upload' in main_input:
-            db = DB()
-            # UPLOAD TO DB
-            run_db(analyzed_data, db)
-            db.close_connection()
+    # Upload analysed data
+    upload_analysed_data(analysed_data, db)
 
-    if '-calculate_graph_data' in main_input:
-        dm = DM()
-        # CALCULATE SENTIMENT RATIO FOR DATA
-        region_scores = dm.calculate_ratio_dated()
-        #EXTRACT DATA NEEDED FOR GRAPH 
-        geography_data = dm.populate_regions(region_scores)
-        # UPLOAD TO DB
-        #upload_geography_data(geography_data) #THIS UPLOADS DPLCIATES FUCK
-        if '-calculate_graph_data-upload' in main_input:
-            upload_geography_data(geography_data)
+    #Calculate label ratios:
+    um = Undated_methods()
+    undated_ratio_data = um.calculate_ratio_undated()
 
-    if '-dated_graph' in main_input:
-        dg = DG()
-        dg.draw_dated_choropleth()
+    dm = Dated_methods()
+    dated_ratio_data = dm.calculate_ratio_dated()
 
-    if '-undated_graph' in main_input:
-        ug = UG()
-        ug.draw_undated_choropleth()   
-    
+    # Sort and upload label ratios and geographic data:
+    upload_label_analysis(undated_ratio_data, db, dated=False, label_analysis_object=um)
+   
+    upload_label_analysis(dated_ratio_data, db, dated=True, label_analysis_object=dm)
+
+    # Retrieve label ratios and geographic data from database:
+    dated_data = db.get_geography_data(dated=True)
+
+    condition = "WHERE calculation_date = '2022-11-18'"
+    undated_data = db.get_geography_data(dated=False, condition=condition)
+
+    # Show graphs:
+    show_graph(dated_data, database_object=db, dated=True)
+    show_graph(undated_data, dated=False)
+
     try:
         db.close_connection()
     except:
@@ -102,40 +67,61 @@ def main():
         pass
 
 
-def validate_args(main_input):
-    if not main_input:
-        return False
-    for input in main_input:
-        if input not in COMMAND_LIST:
-            return False
-    return True
 
-def upload_geography_data(geography_data):
-    db = DB()
-    columns = db.get_col_names_not_id('geography', number_of_keys(geography_data))
-    db.upload_populated_regions(columns, geography_data)
+def show_graph(data, database_object=None, dated=True):
+    if dated:
+        column_names = database_object.get_column_names(tablename='geography')
+        dg = DG(data, column_names)
+        dg.draw_dated_choropleth()
+    else:
+        ug = UG(data)
+        ug.draw_undated_choropleth()
 
-def run_graph():
-    ug = UG()
-    ug.draw_undated_choropleth()
-
-def run_db(data, db):
-    if data:
-        print("checking data for duplicates")
-        data = db.remove_duplicates_batch(data)
-        print("mogrifying data")
-        data = db.mogrify_data(data, number_of_keys(data))
-
-        if data:
-            print("upload data")
-            db.upload_data_postgres_mogrify(data, number_of_keys(data))
-        else:
-            print("No data to upload")
-
-def run_analyzer(data) -> list:
-    anal = sentiment_analysis.Analyzer()
-    print("Analyzing data...")
+def sentiment_analysis(db, from_local=False, local_data_path=CACHE_FILENAME) -> list[dict]:
+    if from_local:
+        data = load_json(local_data_path)
+    else:
+        data = db.get_unanalysed_data()
+    anal = Analyser()
+    print("analyzing data...")
     return anal.analyze_data(data)
+
+def upload_scraped_data(raw_data, db):
+    print("checking data for duplicates")
+    data = db.remove_duplicates_batch(raw_data)
+    print("mogrifying data")
+    col_number = db.get_column_count()
+    data = db.mogrify_data(data, col_number)
+    if data:
+        print("uploading data")
+        columns = db.get_column_names()[:3]
+        db.insert_batch(data, columns)
+    else:
+        print("no data to upload")
+
+def upload_analysed_data(analysed_data, db):
+    print("uploading analysed data")
+    db.upload_analysed_data(analysed_data)
+    
+def upload_label_analysis(label_analysis_data, database_object, dated: bool, label_analysis_object):
+    if dated:
+        # Sort data
+        presorted_data = label_analysis_object.pre_sort_scores_dated(label_analysis_data)
+        mapped_data = label_analysis_object.map_all_regions_dated(presorted_data)
+        # Prepare for upload
+        number_of_columns = database_object.get_column_count(tablename='geography')
+        mogrified_data = database_object.mogrify_data(data=mapped_data, number_of_columns=number_of_columns)
+        # Upload
+        database_object.upload_geography_data(mogrified_data=mogrified_data, dated=dated)
+    else:
+        # Sort data
+        sorted_data = label_analysis_object.pre_sort_scores_undated(label_analysis_data)
+        data = label_analysis_object.add_metadata(sorted_data, database_object=database_object)
+        # Prepare for upload
+        cols = database_object.get_column_count(tablename='geography_undated')
+        mogrified_data = database_object.mogrify_data(data=data, number_of_columns=cols)
+        # Upload
+        database_object.upload_geography_data(mogrified_data=mogrified_data, dated=dated)
 
 def run_spider(CACHE_FILENAME):
     process = CrawlerProcess(settings={'FEED_FORMAT': 'json',
@@ -148,7 +134,6 @@ def run_spider(CACHE_FILENAME):
     )
     process.crawl(BbcSpider)
     process.start()
-    
 
 if __name__ == "__main__":
     main()
