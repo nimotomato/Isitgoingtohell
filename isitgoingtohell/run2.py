@@ -47,9 +47,10 @@ def main():
 
     # # Retrieve geo data from database
     # dated_data = db.get_geography_data(dated=True)
-    # undated_data = db.get_geography_data(dated=False)
+    # condition = "WHERE calculation_date = '2022-11-18'"
+    # undated_data = db.get_geography_data(dated=False, condition=condition)
     # # Show graph
-    # show_graph(dated_data, database_object=db, dated=True)
+    # # show_graph(dated_data, database_object=db, dated=True)
     # show_graph(undated_data, dated=False)
 
 

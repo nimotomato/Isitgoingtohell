@@ -78,15 +78,15 @@ class Database():
         data_tuples = self.get_data(column_string, tablename, condition)
         return list_tuple_to_dict(data_tuples, column_names)
 
-    def get_geography_data(self, dated=False):
+    def get_geography_data(self, dated=False, condition=""):
         if dated:
             tablename = DATED_TABLE
         else:
             tablename = UNDATED_TABLE
 
-        geo_data = self.get_data(tablename=tablename)
+        geo_data = self.get_data(tablename=tablename, condition=condition)
         # Sorts data to fit for uploading
-        sorted_geo_data = self.sort_geo_data(geo_data, dated=dated)
+        sorted_geo_data = self.sort_geo_data_for_database(geo_data, dated=dated)
 
         return sorted_geo_data
 
@@ -141,7 +141,7 @@ class Database():
 
     def upload_geography_data(self, mogrified_data: str, dated=False):
         if dated:
-            tablename = Database
+            tablename = DATED_TABLE
         else:
             tablename = UNDATED_TABLE
         number_of_columns = self.get_column_count(tablename=tablename)
@@ -199,7 +199,8 @@ class Database():
         ordered_keys = [key for key in dict_keys if key in columns]
         return ordered_keys
 
-    def sort_geo_data(self, unsorted_data, dated=False) -> list[dict]:
+    def sort_geo_data_for_database(self, unsorted_data, dated=False) -> list[dict]:
+        # Sor
         data = []
         for item in unsorted_data:
             new_order = {}

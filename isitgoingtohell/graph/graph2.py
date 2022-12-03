@@ -20,7 +20,7 @@ class Graph():
 class Dated_graph(Graph):
     def __init__(self, geography_data, column_names):
         super().__init__()
-        # Get data
+        # Get data, remember to get geography data from most recent dates.
         self.geography_data = geography_data
         self.column_names = column_names
         self.dataframe = pd.DataFrame(geography_data, columns=column_names).sort_values(by = 'date')

@@ -122,6 +122,7 @@ class Undated_methods(General_methods):
 
     def calculate_ratio_undated(self)->dict:
         # Returns a dict of data sorted by region.
+        # TO IMPLEMENT: make this use already calculated data in table geography to save time
         groupings = ['region']
         return self.calculate_ratio_scores(groupings)
 
