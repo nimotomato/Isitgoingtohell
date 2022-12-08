@@ -1,4 +1,5 @@
-from isitgoingtohell.bbc_scraper.spiders.bbc_spider import BbcSpider
+from isitgoingtohell.scrapers.spiders.bbc_spider import BbcSpider
+from isitgoingtohell.scrapers.spiders.reuters_spider import ReutersSpider
 from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
@@ -13,11 +14,12 @@ CACHE_FILENAME = 'cache.json'
 
 def main():    
     # SCRAPE DATA
-    db = DB()
-    # if os.path.exists(CACHE_FILENAME):
-    #     delete_local_file(CACHE_FILENAME)
-    # # Initiate webscraper
-    # run_spider(CACHE_FILENAME)
+    # db = DB()
+    if os.path.exists(CACHE_FILENAME):
+        delete_local_file(CACHE_FILENAME)
+    # Initiate webscraper
+    run_spider(spider_name=BbcSpider)
+    run_spider(spider_name=ReutersSpider)
 
     # # Store scraper output locally
     # raw_data = load_json(CACHE_FILENAME)
@@ -32,7 +34,7 @@ def main():
     # upload_analysed_data(analysed_data, db)
 
     # #Calculate label ratios:
-    um = Undated_methods()
+    #um = Undated_methods()
     #undated_ratio_data = um.calculate_ratio_undated()
 
     # dm = Dated_methods()
@@ -46,17 +48,17 @@ def main():
     # Retrieve label ratios and geographic data from database:
     # dated_data = db.get_graph_data(dated=True)
 
-    condition = "WHERE calculation_date = '2022-11-18'"
-    undated_data = db.get_graph_data(dated=False, condition=condition)
+    # condition = "WHERE calculation_date = '2022-11-18'"
+    # undated_data = db.get_graph_data(dated=False, condition=condition)
 
-    # Show graphs:
-    #show_graph(dated_data, database_object=db, dated=True)
-    show_graph(undated_data, dated=False)
+    # # Show graphs:
+    # #show_graph(dated_data, database_object=db, dated=True)
+    # show_graph(undated_data, dated=False)
 
-    try:
-        db.close_connection()
-    except:
-        pass
+    # try:
+    #     db.close_connection()
+    # except:
+    #     pass
 
     # try:
     #     print("Cleanup initiated...")
@@ -121,17 +123,19 @@ def upload_label_analysis(label_analysis_data, database_object, dated: bool, lab
         # Upload
         database_object.upload_geography_data(mogrified_data=mogrified_data, dated=dated)
 
-def run_spider(CACHE_FILENAME):
+def run_spider(spider_name, CACHE_FILENAME=CACHE_FILENAME):
     process = CrawlerProcess(settings={'FEED_FORMAT': 'json',
+        'CLOSESPIDER_ITEMCOUNT': 80,
         'FEED_URI': CACHE_FILENAME,
         'ITEM_PIPELINES': {
-    'isitgoingtohell.bbc_scraper.pipelines.DuplicatesPipeline': 200,
-    #MAYBE THIS SHOULD BE LESS THAN 200
-    'isitgoingtohell.bbc_scraper.pipelines.RegionPipeline': 300
-    }}
+            'isitgoingtohell.scrapers.pipelines.DuplicatesPipeline': 200,
+            'isitgoingtohell.scrapers.pipelines.RegionPipeline': 300,
+            'isitgoingtohell.scrapers.pipelines.RemoveUncategorized': 900
+            }
+        }
     )
-    process.crawl(BbcSpider)
+    process.crawl(spider_name)
     process.start()
-
+    
 if __name__ == "__main__":
     main()

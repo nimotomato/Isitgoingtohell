@@ -2,15 +2,8 @@ import pandas as pd
 from isitgoingtohell.data_management.db_management import Database as DB
 from isitgoingtohell.utils import load_csv, stringify_list
 from datetime import date
+from isitgoingtohell.scrapers.pipelines import REGIONS
 
-REGIONS = [
-    'africa',
-    'asia',
-    'europe',
-    'oceania',
-    'north america',
-    'south america'
-    ]
 TABLENAME = 'data'
 
 class Load_data():
