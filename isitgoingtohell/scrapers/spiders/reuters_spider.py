@@ -20,8 +20,9 @@ class ReutersSpider(CrawlSpider):
     )
 
     def parse_item(self, response):
-        scraper_item = ReutersScraperItem()
         scraper_item['headline'] = response.css('h1 ::text').get().replace("'", "")
+        scraper_item = ReutersScraperItem()
+
         try:
             date = response.css('span.date-line__date__23Ge- ::text').getall()[1]
             formatted_date = datetime.strptime(date, '%B %d, %Y')

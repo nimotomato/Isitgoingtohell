@@ -22,8 +22,9 @@ class AlJazeeraSpider(CrawlSpider):
     def parse_item(self, response):
         # Find all divs in page
         # Find most headlines and timestamps within div
-        scraper_item = AljazeeraScraperItem()
+        
         if response.css('header.article-header h1 ::text'):
+            scraper_item = AljazeeraScraperItem()
             # Format text regarding quotation marks, assist in future SQL-queries
             scraper_item['headline'] = response.css('header.article-header h1 ::text').get().replace("'", "").replace("\u2018","").replace("\u2019", "")
 
