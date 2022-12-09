@@ -1,5 +1,7 @@
 from isitgoingtohell.scrapers.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.scrapers.spiders.reuters_spider import ReutersSpider
+from isitgoingtohell.scrapers.spiders.aljazeera_spider import AlJazeeraSpider
+
 from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
@@ -18,8 +20,9 @@ def main():
     if os.path.exists(CACHE_FILENAME):
         delete_local_file(CACHE_FILENAME)
     # Initiate webscraper
-    run_spider(spider_name=BbcSpider)
-    run_spider(spider_name=ReutersSpider)
+    #run_spider(spider_name=BbcSpider)
+    #run_spider(spider_name=ReutersSpider)
+    run_spider(spider_name=AlJazeeraSpider)
 
     # # Store scraper output locally
     # raw_data = load_json(CACHE_FILENAME)

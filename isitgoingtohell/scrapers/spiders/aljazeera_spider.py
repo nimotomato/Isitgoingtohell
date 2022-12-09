@@ -2,40 +2,39 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from isitgoingtohell.scrapers.items import AljazeeraScraperItem
-from datetime import date
+from datetime import datetime
+from datetime import date as date1
 import re
 
 class AlJazeeraSpider(CrawlSpider):
-    name = 'news_crawl'
+    name = 'AlJazeera_crawl'
     allowed_domains = ['www.aljazeera.com']
-    start_urls = ['https://www.aljazeera.com/news/']
+    start_urls = ['https://www.aljazeera.com/news/2022/12/8/tunisia-fails-to-protect-women-despite-law-in-place-hrw-says']
     
 
     le_page_details = LinkExtractor(allow=r'/')
-    rule_page_details = Rule(le_page_details, callback='parse_item', follow=False)
+    rule_page_details = Rule(le_page_details, callback='parse_item', follow=True)
     rules = (
-        rule_page_details
+        rule_page_details,
+
     )
 
     def parse_item(self, response):
         # Find all divs in page
-        divs = response.css('div')
+        # Find most headlines and timestamps within div
+        scraper_item = AljazeeraScraperItem()
+        if response.css('header.article-header h1 ::text'):
+            # Format text regarding quotation marks, assist in future SQL-queries
+            scraper_item['headline'] = response.css('header.article-header h1 ::text').get().replace("'", "").replace("\u2018","").replace("\u2019", "")
 
-        for div in divs:
-           # Find most headlines and timestamps within div
-           scraper_item = AljazeeraScraperItem()
-           if div.css('h3::text'):
-                # Format text regarding quotation marks, assist in future SQL-queries
-                scraper_item['headline'] = div.css('a h3::text').get().replace("\xad", "")
-
-                # # Make sure there is a timestamp. If not stamp of news, then stamp when scraped.
-                # try:
-                #     scraper_item['date'] = div.css('time::attr(datetime)').get().split('T')[0]
-                #     if scraper_item['date'] == "P":
-                #         scraper_item['date'] = str(date.today().isoformat())     
-                # except:
-                #     scraper_item['date'] = str(date.today().isoformat())  
-                # region = re.search(r"/world/([a-z]+_?[a-z]+?[a-z]+_?[a-z]+)", response.url)
-                # scraper_item['region'] = region.group(1)
-
-                yield scraper_item
+            # Make sure there is a timestamp. If not stamp of news, then stamp when scraped.
+            try:
+                date = response.css('div.article-dates span.screen-reader-text ::text').get().split('On ')[1]
+                formatted_date = datetime.strptime(date, '%d %b %Y')
+                scraper_item['date'] = formatted_date.date()   
+            except:
+                scraper_item['date'] = str(date1.today().isoformat())  
+            region = response.xpath('//meta').re('name=[\"]where[\"] content=[\"]([a-zA-Z]+\s?(?:[a-zA-Z]+)?)')[0]
+            scraper_item['region'] = region.lower()
+            
+            yield scraper_item

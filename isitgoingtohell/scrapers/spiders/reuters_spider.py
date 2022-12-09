@@ -2,7 +2,8 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from isitgoingtohell.scrapers.items import ReutersScraperItem
-from datetime import date, datetime
+from datetime import datetime
+from datetime import date as date1
 import re
 
 class ReutersSpider(CrawlSpider):
@@ -26,7 +27,7 @@ class ReutersSpider(CrawlSpider):
             formatted_date = datetime.strptime(date, '%B %d, %Y')
             scraper_item['date'] = formatted_date.date()   
         except:
-            scraper_item['date'] = str(date.today().isoformat())  
+            scraper_item['date'] = str(date1.today().isoformat())  
 
         region = response.css('nav.article-header__tags__3-jcV ::text').get()
         scraper_item['region'] = region.lower()

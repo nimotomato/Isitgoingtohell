@@ -17,3 +17,8 @@ class ReutersScraperItem(scrapy.Item):
     headline = scrapy.Field()
     date = scrapy.Field()
     region = scrapy.Field()
+
+class AljazeeraScraperItem(scrapy.Item):
+    headline = scrapy.Field()
+    date = scrapy.Field()
+    region = scrapy.Field()
