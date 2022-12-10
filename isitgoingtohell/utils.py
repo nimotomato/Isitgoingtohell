@@ -59,9 +59,11 @@ def load_toml(file_path) -> dict:
 
     return data
 
-def load_json(file_path) -> dict:
+def load_json(file_path) -> list[dict]:
     with open(file_path, "r") as f:
         data = json.load(f)
+
+    data = list(filter(lambda item: item['region'] is not None, data))
 
     return data
 

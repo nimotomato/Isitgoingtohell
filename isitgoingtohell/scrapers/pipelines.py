@@ -85,6 +85,9 @@ class RemoveUncategorized:
     def process_item(self, item, spider):
         if item['region'] in REGIONS:
             return item
+        else:
+            item['region']=None
+            return item
 
 
 

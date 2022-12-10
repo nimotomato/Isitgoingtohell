@@ -17,7 +17,6 @@ class Graph():
         fig.show()
 
 
-
 class Dated_graph(Graph):
     def __init__(self, geography_data, column_names):
         super().__init__()
