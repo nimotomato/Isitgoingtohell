@@ -1,7 +1,6 @@
 from isitgoingtohell.scrapers.spiders.bbc_spider import BbcSpider
 from isitgoingtohell.scrapers.spiders.reuters_spider import ReutersSpider
 from isitgoingtohell.scrapers.spiders.aljazeera_spider import AlJazeeraSpider
-
 from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
@@ -17,59 +16,58 @@ CACHE_FILENAME = 'cache.json'
 def main():    
     # SCRAPE DATA
     db = DB()
-    # if os.path.exists(CACHE_FILENAME):
-    #     delete_local_file(CACHE_FILENAME)
+    if os.path.exists(CACHE_FILENAME):
+        delete_local_file(CACHE_FILENAME)
     # Initiate webscraper
-    # run_spider(spider_name=BbcSpider)
-    # run_spider(spider_name=ReutersSpider)
-    # run_spider(spider_name=AlJazeeraSpider)
+    run_spider(spider_name=BbcSpider)
+    #run_spider(spider_name=ReutersSpider)
+    #run_spider(spider_name=AlJazeeraSpider)
 
     # Store scraper output locally
     raw_data = load_json(CACHE_FILENAME)
 
-    # # Upload local files
-    # upload_scraped_data(raw_data, db)
+    # Upload local files
+    upload_scraped_data(raw_data, db)
 
     # Sentiment analysis from file or from database
     analysed_data = sentiment_analysis(db, from_local=True, local_data_path=CACHE_FILENAME)
-    for i in analysed_data:
-        print(i)
-    # # Upload analysed data
-    # upload_analysed_data(analysed_data, db)
+    
+    # Upload analysed data
+    upload_analysed_data(analysed_data, db)
 
-    # #Calculate label ratios:
-    #um = Undated_methods()
-    #undated_ratio_data = um.calculate_ratio_undated()
+    #Calculate label ratios from database:
+    um = Undated_methods()
+    undated_ratio_data = um.calculate_ratio_undated()
 
-    # dm = Dated_methods()
-    # dated_ratio_data = dm.calculate_ratio_dated()
+    dm = Dated_methods()
+    dated_ratio_data = dm.calculate_ratio_dated()
 
-    # # Sort and upload label ratios and geographic data:
-    #upload_label_analysis(undated_ratio_data, db, dated=False, label_analysis_object=um)
+    # Sort and upload label ratios and geographic data:
+    upload_label_analysis(undated_ratio_data, db, dated=False, label_analysis_object=um)
    
-    # upload_label_analysis(dated_ratio_data, db, dated=True, label_analysis_object=dm)
+    upload_label_analysis(dated_ratio_data, db, dated=True, label_analysis_object=dm)
 
     # Retrieve label ratios and geographic data from database:
-    # dated_data = db.get_graph_data(dated=True)
+    dated_data = db.get_graph_data(dated=True)
 
-    # condition = "WHERE calculation_date = '2022-11-18'"
-    # undated_data = db.get_graph_data(dated=False, condition=condition)
+    condition = "WHERE calculation_date = '2022-11-18'"
+    undated_data = db.get_graph_data(dated=False, condition=condition)
 
-    # # Show graphs:
-    # #show_graph(dated_data, database_object=db, dated=True)
-    # show_graph(undated_data, dated=False)
+    # Show graphs:
+    show_graph(dated_data, database_object=db, dated=True)
+    show_graph(undated_data, dated=False)
 
     try:
         db.close_connection()
     except:
         pass
 
-    # try:
-    #     print("Cleanup initiated...")
-    #     delete_local_file(CACHE_FILENAME)
-    #     print(f"{CACHE_FILENAME} deleted. ")
-    # except FileNotFoundError:
-    #     pass
+    try:
+        print("Cleanup initiated...")
+        delete_local_file(CACHE_FILENAME)
+        print(f"{CACHE_FILENAME} deleted. ")
+    except FileNotFoundError:
+        pass
 
 
 
