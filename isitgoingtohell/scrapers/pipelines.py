@@ -75,7 +75,6 @@ class RegionPipeline:
         elif item['region'] == 'israel':
             item['region'] = 'asia'
 
-
         return item
 
 class RemoveUncategorized:
@@ -87,8 +86,8 @@ class RemoveUncategorized:
             return item
         else:
             item['region']=None
-            return item
 
+            return item
 
 
 class CompositePipeline:
