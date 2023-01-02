@@ -1,4 +1,5 @@
 import pandas as pd
+from sqlalchemy import create_engine
 from transformers import pipeline
 
 from isitgoingtohell.scrapers.scrape_news import scrape_news
@@ -30,6 +31,8 @@ def main():
     print(analysed_news_df)
 
     # TODO upload dataframe to sql database https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
+    # engine = create_engine("<CONNECTION INFO>", echo=False)
+    # analysed_news_df.to_sql("news", con=engine, if_exists="replace", index_label="id")
 
     # TODO calculate statistics
 
