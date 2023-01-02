@@ -36,16 +36,13 @@ class AlJazeeraSpider(CrawlSpider):
             )
 
             # Make sure there is a timestamp. If not stamp of news, then stamp when scraped.
-            try:
-                date = (
-                    response.css("div.article-dates span.screen-reader-text ::text")
-                    .get()
-                    .split("On ")[1]
-                )
-                formatted_date = datetime.strptime(date, "%d %b %Y")
-                scraper_item["date"] = formatted_date.date()
-            except:
-                scraper_item["date"] = str(date1.today().isoformat())
+            date = (
+                response.css("div.article-dates span.screen-reader-text ::text")
+                .get()
+                .split("On ")[1]
+            )
+            formatted_date = datetime.strptime(date, "%d %b %Y")
+            scraper_item["date"] = formatted_date.date()
             region = response.xpath("//meta").re(
                 'name=["]where["] content=["]([a-zA-Z]+\s?(?:[a-zA-Z]+)?)'
             )[0]
