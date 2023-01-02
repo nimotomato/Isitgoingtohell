@@ -118,10 +118,11 @@ class Database():
 
         self.connection.commit()
 
-    def update_one(self, data: list[dict], condition: str, tablename=TABLENAME):
+    def update_one(self, condition: str, tablename=TABLENAME):
         # Updates one.
         query = f"UPDATE {tablename} {condition}"
         self.cur.execute(query)
+        self.connection.commit()
 
     def upload_analysed_data(self, data: list[dict]):
         for item in data:

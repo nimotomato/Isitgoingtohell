@@ -48,9 +48,13 @@ class RegionPipeline:
             item['region'] = 'north america'
         elif item['region'] == 'middle_east':
             item['region'] = 'asia'
+        elif item['region'] == 'middle':
+            item['region'] = 'asia'
         elif item['region'] == 'australia':
             item['region'] = 'oceania'
         elif item['region'] == 'latin_america':
+            item['region'] = 'south america'
+        elif item['region'] == 'latin':
             item['region'] = 'south america'
         elif item['region'] == 'bolivia':
             item['region'] = 'south america'

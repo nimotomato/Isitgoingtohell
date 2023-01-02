@@ -19,16 +19,14 @@ class ReutersSpider(CrawlSpider):
 
     )
 
-    def parse_item(self, response):
-        scraper_item['headline'] = response.css('h1 ::text').get().replace("'", "")
+    def parse_item(self, response):  
         scraper_item = ReutersScraperItem()
-        try:
-            date = response.css('span.date-line__date__23Ge- ::text').getall()[1]
-            formatted_date = datetime.strptime(date, '%B %d, %Y')
-            scraper_item['date'] = formatted_date.date()   
-        except:
-            scraper_item['date'] = str(date1.today().isoformat())  
-
+        scraper_item['headline'] = response.css('h1 ::text').get().replace("'", "")
+        #Date
+        date = response.css('span.date-line__date__23Ge- ::text').getall()[1]
+        formatted_date = datetime.strptime(date, '%B %d, %Y')
+        scraper_item['date'] = formatted_date.date()   
+        
         region = response.css('nav.article-header__tags__3-jcV ::text').get()
         scraper_item['region'] = region.lower()
         yield scraper_item
