@@ -1,20 +1,29 @@
 import pandas as pd
-from sqlalchemy import create_engine
-from transformers import pipeline
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import IntegrityError
 
-from isitgoingtohell.scrapers.scrape_news import scrape_news
-from isitgoingtohell.utils import load_toml
+from isitgoingtohell.analyze_sentiment import analyze_sentiment
+from isitgoingtohell.scrape_news import scrape_news
 
 
-def analyze_sentiment(news, batch_size=64):
-    # TODO CHANGE THIS MODEL?
-    sentiment_analyser = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis")
+def upload_data(analysed_news_df: pd.DataFrame):
+    # TODO upload dataframe to sql database https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
+    username = "dev"
+    password = "pass"
+    host = "news-db"
+    port = "5432"
+    db_name = "news-db"
 
-    results = []
-    for i in range(0, len(news), batch_size):
-        results.extend(sentiment_analyser(news[i : i + batch_size]))
-
-    return pd.DataFrame(results)
+    engine = create_engine(
+        f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{db_name}", echo=False
+    )
+    with engine.connect() as conn:
+        for _, row in analysed_news_df.iterrows():
+            query = (
+                f"INSERT INTO news (headline, date, region, scraped_at, label, score)"
+                f"VALUES {tuple(row.to_dict().values())} ON CONFLICT (headline) DO NOTHING;"
+            )
+            conn.execute(text(query))
 
 
 def main():
@@ -30,11 +39,7 @@ def main():
     analysed_news_df = pd.concat([news_df, sentiments_df], axis=1)
     print(analysed_news_df)
 
-    # TODO upload dataframe to sql database https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html
-    engine = create_engine("<CONNECTION INFO>", echo=False)
-    analysed_news_df.to_sql("news", con=engine, if_exists="replace", index_label="id")
-
-    # TODO calculate statistics
+    upload_data(analysed_news_df)
 
 
 if __name__ == "__main__":
