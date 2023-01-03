@@ -6,9 +6,9 @@ import pandas as pd
 from scrapy.crawler import CrawlerProcess
 from scrapy.spiders import CrawlSpider
 
-from isitgoingtohell.scrapers.spiders.aljazeera_spider import AlJazeeraSpider
-from isitgoingtohell.scrapers.spiders.bbc_spider import BbcSpider
-from isitgoingtohell.scrapers.spiders.reuters_spider import ReutersSpider
+from isitgoingtohell.scraping.spiders.aljazeera_spider import AlJazeeraSpider
+from isitgoingtohell.scraping.spiders.bbc_spider import BbcSpider
+from isitgoingtohell.scraping.spiders.reuters_spider import ReutersSpider
 
 
 def run_spiders(spiders: List[CrawlSpider], output_csv: str) -> None:
@@ -18,9 +18,9 @@ def run_spiders(spiders: List[CrawlSpider], output_csv: str) -> None:
             "CLOSESPIDER_ITEMCOUNT": 80,
             "OUTPUT_CSV": output_csv,
             "ITEM_PIPELINES": {
-                "isitgoingtohell.scrapers.pipelines.RegionPipeline": 300,
-                "isitgoingtohell.scrapers.pipelines.RemoveUncategorized": 800,
-                "isitgoingtohell.scrapers.pipelines.CsvWriterPipeline": 900,
+                "isitgoingtohell.scraping.pipelines.RegionPipeline": 300,
+                "isitgoingtohell.scraping.pipelines.RemoveUncategorized": 800,
+                "isitgoingtohell.scraping.pipelines.CsvWriterPipeline": 900,
             },
         }
     )
@@ -33,14 +33,16 @@ def run_spiders(spiders: List[CrawlSpider], output_csv: str) -> None:
 
 def load_data(output_csv: str) -> pd.DataFrame:
     news_df = pd.read_csv(output_csv, delimiter="\t")
-    print(news_df)
     news_df.drop_duplicates(subset=["headline"], inplace=True)
-    print(news_df)
     news_df.reset_index(inplace=True, drop=True)
     return news_df
 
 
-def scrape_news(output_csv: str) -> pd.DataFrame:
+def scrape_news() -> pd.DataFrame:
+
+    # all scrapers will write to this csv.
+    # we load data from it then remove it
+    output_csv = "output_news.csv"
 
     # scrape news
     spiders = [BbcSpider]  # , AlJazeeraSpider  # ReutersSpider,

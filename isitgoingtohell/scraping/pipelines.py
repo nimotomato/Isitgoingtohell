@@ -1,20 +1,7 @@
 # Define your item pipelines here
 #
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-import json
+
 import os
-
-import numpy as np
-import psycopg2
-
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-from scrapy.exceptions import DropItem
-from transformers import pipeline
-
-from isitgoingtohell.data_management.db_management import Database as DB
-from isitgoingtohell.utils import load_toml
 
 REGIONS = ["africa", "asia", "europe", "oceania", "north america", "south america"]
 
@@ -86,6 +73,5 @@ class CsvWriterPipeline(object):
         self.file.close()
 
     def process_item(self, item, spider):
-        # line = json.dumps(dict(item), default=str) + ",\n"
         self.file.write(f'{item["headline"]}\t{item["date"]}\t{item["region"]}\n')
         return item

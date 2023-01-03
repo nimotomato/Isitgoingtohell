@@ -1,10 +1,13 @@
+import os
+from typing import List
+
 import pandas as pd
 from transformers import pipeline
 
 
-def analyze_sentiment(news, batch_size=64):
-    # TODO CHANGE THIS MODEL?
-    sentiment_analyser = pipeline(model="finiteautomata/bertweet-base-sentiment-analysis")
+def analyze_sentiment(news: List[str], batch_size: int = 64) -> pd.DataFrame:
+    """analyze sentiment"""
+    sentiment_analyser = pipeline(model=os.environ["SENTIMENT_MODEL"])
 
     results = []
     for i in range(0, len(news), batch_size):
