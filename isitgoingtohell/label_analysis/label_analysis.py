@@ -1,15 +1,17 @@
 import pandas as pd
 from isitgoingtohell.data_management.db_management import Database as DB
 from isitgoingtohell.utils import load_csv
+from sqlalchemy import Table, Column, Float, String, Date, MetaData, create_engine
 
 TABLENAME = 'data'
+
 class Statistics():
     # Get data
     def __init__(self):
         # Connect to database and get retreival methods.
         db = DB()
         columns = ['date','region','label']
-        query = f'SELECT {",".join(columns)} FROM {TABLENAME} WHERE label is not Null'
+        query = f'SELECT {",".join(columns)} FROM {TABLENAME} WHERE used is not Null'
         db.cur.execute(query)
         sentiment_data = db.cur.fetchall()
         db.close_connection(message=False)
@@ -41,4 +43,20 @@ class Statistics():
         return [{'ratio': j, 'date': i[1], 'region': i[0]} for i, j in ratios.items()]
         
     # Upload data
-    ## ????
+    def upload_analysed_data(self, data):
+        url = 'postgresql://news_db_itmr_user:YBIuNld32NRcYvCNQM1Md7MiYXRZ4Uem@dpg-cdjur3un6mpngruf3uag-a.oregon-postgres.render.com/news_db_itmr'
+        engine = create_engine(
+        url,
+        echo=False,
+        )
+        meta = MetaData()
+        meta.create_all(engine)
+
+        table_data = Table(
+            'geography', meta,
+            Column('ratio', Float),
+            Column('date', Date),
+            Column('region', String)
+        )
+        conn = engine.connect()
+        conn.execute(table_data.insert(), data)

@@ -14,7 +14,7 @@ class Graph():
         self.country_codes = load_csv("only_codes.csv")
         query = f'SELECT * FROM {TABLENAME}'
         db.cur.execute(query)
-        self.data = [{'score': i[0], 'date': i[1], 'region': i[2]} for i in db.cur.fetchall()]
+        self.data = [{'ratio': i[0], 'date': i[1], 'region': i[2]} for i in db.cur.fetchall()]
         db.connection.close()
 
     def add_country_codes(self, formated_ratios, region):
@@ -27,7 +27,7 @@ class Graph():
                     if score['region'] == region:
                         item = {}
                         item['country_code'] = country['code']
-                        item['score'] = score['score']
+                        item['ratio'] = score['ratio']
                         item['date'] = score['date']
                         item['region'] = score['region']
                         ratios_with_country_codes.append(item)
@@ -54,7 +54,7 @@ class Graph():
             dataframe, 
             locationmode="ISO-3", 
             locations="country_code",
-            color="score",
+            color="ratio",
             hover_name="region",
             title = "IS IT GOING TO HELL?", 
             animation_frame= "date",
