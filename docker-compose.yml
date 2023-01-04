@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  news-db:
+    container_name: news-db
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=news-db
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ./sql/create_news_table.sql:/docker-entrypoint-initdb.d/create_news_table.sql
+    networks:
+      - news_db_network
+
+  isitgoingtohell:
+    container_name: isitgoingtohell-dev
+    image: isitgoingtohell-dev:latest
+    build:
+      context: ./
+      dockerfile: dockerfile
+      target: dev
+    environment:
+      - DB_USERNAME=dev
+      - DB_PASSWORD=pass
+      - DB_HOST=news-db
+      - DB_PORT=5432
+      - DB_NAME=news-db
+      - SENTIMENT_MODEL=finiteautomata/bertweet-base-sentiment-analysis
+    volumes:
+      - ./isitgoingtohell:/app/isitgoingtohell
+    tty: true
+    depends_on:
+      - news-db
+    networks:
+      - news_db_network
+
+networks:
+  news_db_network:
+
+volumes:
+  db:
+    driver: local
