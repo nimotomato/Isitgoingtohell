@@ -22,7 +22,11 @@ class ReutersSpider(CrawlSpider):
     )
 
     def parse_item(self, response):  
+<<<<<<< HEAD:isitgoingtohell/scraping/spiders/reuters_spider.py
         scraper_item = NewsHeadline()
+=======
+        scraper_item = ReutersScraperItem()
+>>>>>>> 725977a16e5b729881da0ce7d2d97dfeaa250772:isitgoingtohell/scrapers/spiders/reuters_spider.py
         scraper_item['headline'] = response.css('h1 ::text').get().replace("'", "")
         #Date
         date = response.css('span.date-line__date__23Ge- ::text').getall()[1]

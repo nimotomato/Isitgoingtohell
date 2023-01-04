@@ -5,12 +5,20 @@ from isitgoingtohell.utils import load_json, delete_local_file
 from scrapy.crawler import CrawlerProcess
 from isitgoingtohell.sentiment_analysis.sentiment_analysis import Analyser
 from isitgoingtohell.data_management.db_management import Database as DB
+<<<<<<< HEAD
+=======
+from isitgoingtohell.graph.graph import Dated_graph as DG
+from isitgoingtohell.graph.graph import Undated_graph as UG
+from isitgoingtohell.label_analysis.label_analysis import Dated_methods
+from isitgoingtohell.label_analysis.label_analysis import Undated_methods as UM
+>>>>>>> 725977a16e5b729881da0ce7d2d97dfeaa250772
 import os
 
 CACHE_FILENAME = 'cache.json'
 
 def main():    
     # SCRAPE DATA
+<<<<<<< HEAD
     db = DB()
     # if os.path.exists(CACHE_FILENAME):
     #     delete_local_file(CACHE_FILENAME)
@@ -18,6 +26,15 @@ def main():
     # #run_spider(spider_name=BbcSpider)
     # #run_spider(spider_name=ReutersSpider)
     # run_spider(spider_name=AlJazeeraSpider)
+=======
+    # db = DB()
+    if os.path.exists(CACHE_FILENAME):
+        delete_local_file(CACHE_FILENAME)
+    # Initiate webscraper
+    run_spider(spider_name=BbcSpider)
+    #run_spider(spider_name=ReutersSpider)
+    # #run_spider(spider_name=AlJazeeraSpider)
+>>>>>>> 725977a16e5b729881da0ce7d2d97dfeaa250772
 
     # # Store scraper output locally
     # raw_data = load_json(CACHE_FILENAME)
@@ -25,11 +42,11 @@ def main():
     # # Upload local files
     # upload_scraped_data(raw_data, db)
 
-    # Sentiment analysis from file or from database
-    analysed_data = sentiment_analysis(db, from_local=True, local_data_path=CACHE_FILENAME)
+    # # Sentiment analysis from file or from database
+    # analysed_data = sentiment_analysis(db, from_local=True, local_data_path=CACHE_FILENAME)
     
-    # Upload analysed data
-    upload_analysed_data(analysed_data, db)
+    # # Upload analysed data
+    # upload_analysed_data(analysed_data, db)
 
     # # Calculate new ratios
     # mean_ratios_undated = calculate_mean_ratios_undated()
