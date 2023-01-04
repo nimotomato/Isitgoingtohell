@@ -22,10 +22,14 @@ class Statistics():
             self.dataframe.replace('POSITIVE', 1)
             .replace('NEGATIVE', 0)
 <<<<<<< HEAD:isitgoingtohell/label_analysis.py
+<<<<<<< HEAD:isitgoingtohell/label_analysis.py
             .groupby(['region','date'])
 =======
             .groupby('region','date')
 >>>>>>> made user have to pass data to label_analysis:isitgoingtohell/label_analysis/label_analysis.py
+=======
+            .groupby(['region','date'])
+>>>>>>> mystery:isitgoingtohell/label_analysis/label_analysis.py
             .agg(sentiment_ratio=('label', 'mean'))
         )
 
