@@ -22,10 +22,10 @@ def main():
     analysed_news_df = pd.concat([news_df, sentiments_df], axis=1)
 
     log.info("Uploading data ...")
-    result = upload_data(analysed_news_df)
+    n_uploads = upload_data(analysed_news_df)
 
     log.info(
-        f"REPORT: \nScraped news: {n_news} \nUploaded news: {result} \nNumber duplicates: {n_news-result}"
+        f"REPORT: \nScraped news: {n_news} \nUploaded news: {n_uploads} \nNumber duplicates: {n_news-n_uploads}"
     )
 
 

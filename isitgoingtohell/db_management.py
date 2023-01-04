@@ -17,7 +17,7 @@ def upload_data(analysed_news_df: pd.DataFrame) -> int:
         echo=False,
     )
 
-    added_rows = 0
+    n_uploads = 0
     with engine.connect() as conn:
         for _, row in analysed_news_df.iterrows():
             query = (
@@ -27,6 +27,6 @@ def upload_data(analysed_news_df: pd.DataFrame) -> int:
             r = conn.execute(text(query))
 
             # if we add an item rowcount is 1, if its a dupliacte its 0
-            added_rows += r.rowcount
+            n_uploads += r.rowcount
 
-    return added_rows
+    return n_uploads
