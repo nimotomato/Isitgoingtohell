@@ -1,4 +1,3 @@
-from isitgoingtohell.label_analysis.label_analysis import Statistics
 from isitgoingtohell.utils import load_csv
 import plotly.express as px
 import pandas as pd
@@ -9,7 +8,6 @@ TABLENAME = 'geography'
 
 class Graph():
     def __init__(self):
-        self.stats = Statistics()
         db = DB()
         self.country_codes = load_csv("only_codes.csv")
         query = f'SELECT * FROM {TABLENAME}'
