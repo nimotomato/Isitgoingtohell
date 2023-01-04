@@ -20,7 +20,8 @@ class Statistics():
         # Load list of country codes corresponding to region.
         self.country_codes = load_csv("only_codes.csv")
 
-    def calculate_ratio_scores(self) -> dict:
+    def calculate_ratio_scores(self):
+        # Calculates ratios for labels.
         groupings = ['region','date']
         ratios = (
             self.df.replace('POSITIVE', 1)
@@ -31,7 +32,33 @@ class Statistics():
 
         return ratios
 
-    def format_ratios(self, ratios):
+    def format_ratios(self, ratios) -> dict:
+        # Format ratios into a nice dictionary.
         ratios = ratios.to_dict()['sentiment_ratio']
 
         return [{'ratio': j, 'date': i[1], 'region': i[0]} for i, j in ratios.items()]
+        
+    def add_country_codes(self, formated_ratios, region):
+        # Add country codes for a region.
+        ratios_with_country_codes = []
+
+        for country in self.country_codes:
+            if country['region'].lower() == region:
+                for score in formated_ratios:
+                    if score['region'] == region:
+                        item = {}
+                        item['country_code'] = country['code']
+                        item['score'] = score['score']
+                        item['date'] = score['date']
+                        item['region'] = score['region']
+                        ratios_with_country_codes.append(item)
+
+        return ratios_with_country_codes 
+
+    def add_codes_all_regions(self, presorted_scores_dated, regions=REGIONS) -> list:
+        # Adds country codes for all regions.
+        regions = []
+        for region in regions:
+            regions.extend(self.sort_by_country_code(presorted_scores_dated, region))
+
+        return regions
