@@ -1,17 +1,11 @@
 """scraper for https://www.bbc.com/news/world"""
 import re
-from datetime import date
 
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
-<<<<<<< HEAD:isitgoingtohell/scraping/spiders/bbc_spider.py
 
 from isitgoingtohell.scraping.items import NewsHeadline
 
-=======
-from isitgoingtohell.scrapers.items import BbcScraperItem
-import re
->>>>>>> label refactor contains old code:isitgoingtohell/scrapers/spiders/bbc_spider.py
 
 class BbcSpider(CrawlSpider):
     name = 'news_crawl'

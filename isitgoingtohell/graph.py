@@ -1,7 +1,3 @@
-<<<<<<< HEAD:isitgoingtohell/graph.py
-=======
-from isitgoingtohell.utils import load_csv
->>>>>>> made user have to pass data to label_analysis:isitgoingtohell/graph/graph.py
 import plotly.express as px
 import pandas as pd
 from isitgoingtohell.db_management import Database as DB

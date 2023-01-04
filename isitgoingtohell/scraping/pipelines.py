@@ -43,21 +43,10 @@ class RegionPipeline:
             item["region"] = "africa"
         elif item["region"] == "israel":
             item["region"] = "asia"
+        else:
+            item['region'] = None
 
         return item
-
-
-class RemoveUncategorized:
-    def __init__(self):
-        pass
-
-    def process_item(self, item, spider):
-        if item["region"] in REGIONS:
-            return item
-        else:
-            item["region"] = None
-
-            return item
 
 
 class CsvWriterPipeline(object):
