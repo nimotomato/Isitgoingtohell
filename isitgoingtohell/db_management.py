@@ -3,10 +3,8 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 
-# from sqlalchemy.exc import IntegrityError
 
-
-def upload_data(analysed_news_df: pd.DataFrame):
+def upload_data(analysed_news_df: pd.DataFrame) -> int:
     """uploads all data to postgres db
 
     see schema in schema/news"""
@@ -18,6 +16,8 @@ def upload_data(analysed_news_df: pd.DataFrame):
         url,
         echo=False,
     )
+
+    added_rows = 0
     with engine.connect() as conn:
         for _, row in analysed_news_df.iterrows():
             query = (
@@ -25,4 +25,8 @@ def upload_data(analysed_news_df: pd.DataFrame):
                 f"VALUES {tuple(row.to_dict().values())} ON CONFLICT (headline) DO NOTHING;"
             )
             r = conn.execute(text(query))
-            print(r)
+
+            # if we add an item rowcount is 1, if its a dupliacte its 0
+            added_rows += r.rowcount
+
+    return added_rows
