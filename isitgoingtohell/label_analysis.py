@@ -8,7 +8,11 @@ class Statistics():
     # Get data
     def __init__(self, data):
         # Load list of country codes corresponding to region.
+<<<<<<< HEAD:isitgoingtohell/label_analysis.py
         self.country_codes = pd.read_csv("only_codes.csv")
+=======
+        self.country_codes = load_csv("only_codes.csv")
+>>>>>>> made user have to pass data to label_analysis:isitgoingtohell/label_analysis/label_analysis.py
         self.dataframe = pd.DataFrame(data, columns=COLUMNS)
 
     # Calculate data
@@ -17,7 +21,11 @@ class Statistics():
         ratios = (
             self.dataframe.replace('POSITIVE', 1)
             .replace('NEGATIVE', 0)
+<<<<<<< HEAD:isitgoingtohell/label_analysis.py
             .groupby(['region','date'])
+=======
+            .groupby('region','date')
+>>>>>>> made user have to pass data to label_analysis:isitgoingtohell/label_analysis/label_analysis.py
             .agg(sentiment_ratio=('label', 'mean'))
         )
 
