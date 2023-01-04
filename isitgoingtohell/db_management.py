@@ -3,6 +3,8 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 
+from psycopg2 import errors
+import psycopg2
 
 def upload_data(analysed_news_df: pd.DataFrame) -> int:
     """uploads all data to postgres db
