@@ -3,6 +3,8 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 
+from psycopg2 import errors
+import psycopg2
 
 def upload_data(analysed_news_df: pd.DataFrame) -> int:
     """uploads all data to postgres db
@@ -30,3 +32,16 @@ def upload_data(analysed_news_df: pd.DataFrame) -> int:
             n_uploads += r.rowcount
 
     return n_uploads
+
+class Database():
+    def __init__(self):
+        hostname = 'dpg-cdjur3un6mpngruf3uag-a.oregon-postgres.render.com'
+        username = 'news_db_itmr_user'
+        password = 'YBIuNld32NRcYvCNQM1Md7MiYXRZ4Uem'
+        database = 'news_db_itmr'
+        self.UniqueViolation = errors.lookup('23505')
+        #create connection
+        self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
+        
+        # Create cursor, used to execute commands
+        self.cur = self.connection.cursor()
