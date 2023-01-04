@@ -2,7 +2,6 @@ import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from isitgoingtohell.scrapers.items import BbcScraperItem
-from datetime import date
 import re
 
 class BbcSpider(CrawlSpider):
