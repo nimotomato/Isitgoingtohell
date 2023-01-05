@@ -1,10 +1,10 @@
 CREATE TABLE public.news (
 	id INT GENERATED ALWAYS AS IDENTITY, 
-	headline text NULL,
-	"date" text NULL,
-	region text NULL,
-	scraped_at text NULL,
-	"label" text NULL,
-	score float8 null,
+	headline text NOT NULL,
+	"date" DATE NOT NULL,
+	region text NOT NULL,
+	scraped_at DATE NOT NULL,
+	"label" text NOT NULL,
+	score float8 NOT NULL,
 	UNIQUE (headline)
 );
