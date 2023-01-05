@@ -46,7 +46,7 @@ def scrape_news() -> pd.DataFrame:
     output_csv = "output_news.csv"
 
     # scrape news
-    spiders = [BbcSpider,AlJazeeraSpider,ReutersSpider]  # ,   # ReutersSpider,
+    spiders = [BbcSpider, AlJazeeraSpider, ReutersSpider]
     run_spiders(spiders, output_csv)
 
     # load data, remove dupicates etc
