@@ -33,7 +33,8 @@ def run_spiders(spiders: List[CrawlSpider], output_csv: str) -> None:
 def load_data(output_csv: str) -> pd.DataFrame:
     news_df = pd.read_csv(output_csv, delimiter="\t")
     news_df.drop_duplicates(subset=["headline"], inplace=True)
-    news_df.drop(news_df[news_df['region'] == 'None'].index, inplace=True)
+    # as we write to .csv in all scrapers None gets treated as a string..
+    news_df = news_df[news_df["region"] != "None"]
     news_df.reset_index(inplace=True, drop=True)
     return news_df
 
@@ -45,7 +46,7 @@ def scrape_news() -> pd.DataFrame:
     output_csv = "output_news.csv"
 
     # scrape news
-    spiders = [BbcSpider,AlJazeeraSpider,ReutersSpider]  # ,   # ReutersSpider,
+    spiders = [BbcSpider, AlJazeeraSpider, ReutersSpider]
     run_spiders(spiders, output_csv)
 
     # load data, remove dupicates etc
