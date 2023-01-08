@@ -10,3 +10,4 @@ class NewsHeadline(scrapy.Item):
     headline = scrapy.Field()
     date = scrapy.Field()
     region = scrapy.Field()
+    source = scrapy.Field()

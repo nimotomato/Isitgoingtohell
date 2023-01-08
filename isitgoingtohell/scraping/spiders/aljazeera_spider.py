@@ -48,4 +48,7 @@ class AlJazeeraSpider(CrawlSpider):
             )[0]
             scraper_item["region"] = region.lower()
 
+            # add source
+            scraper_item["source"] = "www.aljazeera.com"
+
             yield scraper_item

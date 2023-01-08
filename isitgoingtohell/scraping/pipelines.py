@@ -61,7 +61,7 @@ class CsvWriterPipeline(object):
 
         if not os.path.exists(spider.settings["OUTPUT_CSV"]):
             with open(spider.settings["OUTPUT_CSV"], "w") as f:
-                f.write("headline\tdate\tregion\n")
+                f.write("headline\tdate\tregion\tsource\n")
 
         self.file = open(spider.settings["OUTPUT_CSV"], "a")
 
@@ -69,5 +69,5 @@ class CsvWriterPipeline(object):
         self.file.close()
 
     def process_item(self, item, spider):
-        self.file.write(f'{item["headline"]}\t{item["date"]}\t{item["region"]}\n')
+        self.file.write(f'{item["headline"]}\t{item["date"]}\t{item["region"]}\t{item["source"]}\n')
         return item

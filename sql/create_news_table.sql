@@ -1,9 +1,10 @@
 CREATE TABLE public.news (
-	id INT GENERATED ALWAYS AS IDENTITY, 
+	id INT GENERATED ALWAYS AS IDENTITY,
+	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	headline text NOT NULL,
-	"date" DATE NOT NULL,
+	"date" TIMESTAMP NOT NULL,
 	region text NOT NULL,
-	scraped_at DATE NOT NULL,
+	source text NOT NULL,
 	"label" text NOT NULL,
 	score float8 NOT NULL,
 	UNIQUE (headline)

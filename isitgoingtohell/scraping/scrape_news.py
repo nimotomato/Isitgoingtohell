@@ -52,9 +52,6 @@ def scrape_news() -> pd.DataFrame:
     # load data, remove dupicates etc
     news_df = load_data(output_csv)
 
-    # add scraping date
-    news_df["scraped_at"] = datetime.datetime.now().isoformat()
-
     # remove csv file
     os.remove(output_csv)
 
