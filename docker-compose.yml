@@ -21,8 +21,7 @@ services:
     image: isitgoingtohell-dev:latest
     build:
       context: ./
-      dockerfile: dockerfile
-      target: dev
+      dockerfile: Dockerfile
     environment:
       - DB_USERNAME=dev
       - DB_PASSWORD=pass

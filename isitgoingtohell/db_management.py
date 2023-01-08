@@ -1,8 +1,6 @@
 import os
 
 import pandas as pd
-import psycopg2
-from psycopg2 import errors
 from sqlalchemy import create_engine, text
 
 
